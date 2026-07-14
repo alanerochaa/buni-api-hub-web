@@ -399,6 +399,4 @@ Componente → Hook (React Query) → Service (Axios) → api/
 
 <div align="center">
 
-[⬅ api/README.md](../api/README.md) · [🏠 README principal](../README.md)
-
 </div>
