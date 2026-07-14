@@ -13,12 +13,6 @@ export interface FilterBarProps {
   onStatusChange: (value: ResourceStatus | 'all') => void
 }
 
-/**
- * Grid responsivo: 1 coluna no mobile, 2 no tablet, 4 no desktop.
- *
- * Tipo, Ambiente e Status filtram de verdade. Ordenar por continua
- * decorativo — ordenação está fora do escopo desta sprint.
- */
 export function FilterBar({
   type,
   onTypeChange,

@@ -44,7 +44,6 @@ export interface SearchBarProps {
   onClear: () => void
 }
 
-/** Composição visual da barra: ícone + campo + botão "Limpar", agora controlada pelo CatalogPage. */
 export function SearchBar({ value, onChange, onClear }: SearchBarProps) {
   return (
     <div className="focus-within:ring-brand-700 flex w-full items-center gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2.5 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-offset-1 sm:gap-4 sm:px-4">

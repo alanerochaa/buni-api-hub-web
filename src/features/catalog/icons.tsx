@@ -1,7 +1,3 @@
-// Ícones do domínio "catalog" (API/Web Service/Site) — compartilhados
-// entre ResourceSummaryGrid e a Sidebar, para não ter dois desenhos
-// ligeiramente diferentes representando o mesmo tipo.
-
 export interface ResourceTypeIconProps {
   className?: string
 }

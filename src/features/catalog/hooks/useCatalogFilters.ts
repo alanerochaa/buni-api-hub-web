@@ -9,9 +9,6 @@ const VALID_ENVIRONMENTS: readonly (ResourceEnvironment | 'all')[] = [
   'homologacao',
   'producao',
 ]
-// Derivado de RESOURCE_STATUS_CONFIG (fonte única de verdade dos
-// status possíveis) — se um status novo for adicionado ali, o filtro
-// passa a aceitá-lo automaticamente, sem precisar tocar aqui.
 const VALID_STATUSES: readonly (ResourceStatus | 'all')[] = [
   'all',
   ...(Object.keys(RESOURCE_STATUS_CONFIG) as ResourceStatus[]),
@@ -52,24 +49,6 @@ export interface UseCatalogFiltersResult {
   clearAll: () => void
 }
 
-/**
- * Busca, Tipo, Ambiente, Status e Favoritos vivem na URL (?search=&
- * type=&environment=&status=&favorites=), não em useState local — é
- * o que permite atualizar a página, copiar o link e voltar da tela de
- * detalhes sem perder o que estava filtrado. Todas as escritas usam
- * `replace` (não `push`): um filtro digitado letra a letra não deve
- * virar uma pilha de entradas no histórico do navegador — só
- * navegações de verdade (catálogo -> detalhes) devem.
- *
- * `setSearchParams` do react-router calcula o `prev` a partir do
- * `searchParams` do render atual (fechamento), não encadeia entre
- * chamadas — duas chamadas síncronas de `setSearchParams` no mesmo
- * handler (ex.: setType() seguido de setFavoritesOnly()) fazem a
- * segunda pisar na primeira, porque ambas partem do mesmo `prev`
- * desatualizado. Por isso `setView` existe: sempre que mais de um
- * parâmetro precisa mudar junto (Sidebar trocando de "visão"), a
- * atualização tem que ser uma única chamada a `setSearchParams`.
- */
 export function useCatalogFilters(): UseCatalogFiltersResult {
   const [searchParams, setSearchParams] = useSearchParams()
 

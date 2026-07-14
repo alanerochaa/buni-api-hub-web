@@ -6,11 +6,6 @@ export interface FavoriteButtonProps {
   resourceId: string
 }
 
-/**
- * Botão compacto (só ícone) usado na tabela. Lê/escreve direto no
- * useFavorites — não recebe estado via props, então qualquer linha da
- * tabela pode favoritar/desfavoritar sem a CatalogPage precisar saber.
- */
 export function FavoriteButton({ resourceId }: FavoriteButtonProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
   const favorited = isFavorite(resourceId)

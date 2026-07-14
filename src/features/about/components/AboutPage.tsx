@@ -83,7 +83,7 @@ export function AboutPage() {
     <div className="mx-auto flex max-w-[1000px] flex-col gap-8 pb-12">
       <div className="border-b border-neutral-200 pb-6">
         <p className="text-xs font-medium tracking-wide text-neutral-400 uppercase">
-          Buni API Hub
+          Portal de Serviços
         </p>
         <h1 className="mt-1 text-2xl font-semibold text-neutral-900">Sobre o Portal</h1>
         <p className="mt-2 max-w-2xl text-sm text-neutral-500">
@@ -134,10 +134,6 @@ export function AboutPage() {
           </div>
         </Card>
       </Section>
-
-      <p className="text-center text-xs text-neutral-400">
-        Desenvolvido por Catarse Tecnologia & Consultoria.
-      </p>
     </div>
   )
 }

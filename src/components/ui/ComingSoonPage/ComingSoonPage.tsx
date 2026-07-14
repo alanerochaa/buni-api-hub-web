@@ -32,13 +32,6 @@ export interface ComingSoonPageProps {
   description?: string
 }
 
-/**
- * Placeholder genérico para itens de navegação já previstos mas ainda
- * sem funcionalidade própria (Dashboard, Documentação, Swagger,
- * Relatórios e Configurações, por exemplo) — cada um vira só uma rota
- * nova apontando pra este mesmo componente, sem precisar reescrever a
- * Sidebar nem criar uma tela nova do zero.
- */
 export function ComingSoonPage({ title, description }: ComingSoonPageProps) {
   return (
     <div className="flex justify-center py-12">

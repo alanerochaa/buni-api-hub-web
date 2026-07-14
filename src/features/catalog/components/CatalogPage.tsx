@@ -58,9 +58,6 @@ export function CatalogPage() {
       environment: filters.environment,
     })
 
-    // Status não é um campo do Resource — vem do Health Check
-    // (healthByResourceId), por isso filtra numa etapa separada de
-    // filterResources.ts, que só conhece campos intrínsecos do recurso.
     if (filters.status === 'all') return byIntrinsicFields
     return byIntrinsicFields.filter(
       (resource) => (healthByResourceId.get(resource.id)?.status ?? 'unknown') === filters.status,

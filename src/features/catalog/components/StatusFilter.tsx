@@ -3,9 +3,6 @@ import { Select } from '@/components/ui'
 import { RESOURCE_STATUS_CONFIG } from '../constants'
 import type { ResourceStatus } from '../types'
 
-// Derivado de RESOURCE_STATUS_CONFIG — a mesma fonte de verdade usada
-// pelo ResourceStatusBadge (tabela e tela de detalhes). Um status novo
-// adicionado ali aparece aqui automaticamente, sem editar este arquivo.
 const OPTIONS = [
   { value: 'all', label: 'Todos' },
   ...(Object.keys(RESOURCE_STATUS_CONFIG) as ResourceStatus[]).map((status) => ({

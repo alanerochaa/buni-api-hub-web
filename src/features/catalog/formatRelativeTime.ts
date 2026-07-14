@@ -1,9 +1,3 @@
-/**
- * Formata um timestamp ISO em texto relativo curto ("há 2 min"). Não
- * usa date-fns/dayjs — a necessidade é pequena o suficiente para não
- * justificar uma nova dependência (mesmo raciocínio de
- * normalizeSearchTerm.ts).
- */
 export function formatRelativeTime(isoDate: string): string {
   const diffMs = Date.now() - new Date(isoDate).getTime()
   const diffSeconds = Math.round(diffMs / 1000)

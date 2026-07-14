@@ -4,12 +4,6 @@ export interface TooltipProps {
   label: string
   children: ReactNode
 }
-
-/**
- * CSS puro (group-hover/group-focus-within) — sem JS, sem posição
- * calculada em runtime. Aparece tanto no hover do mouse quanto no
- * foco por teclado, para não ser uma informação só visual.
- */
 export function Tooltip({ label, children }: TooltipProps) {
   return (
     <span className="group relative inline-flex">

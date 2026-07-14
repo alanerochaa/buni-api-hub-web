@@ -3,8 +3,6 @@ import { Select } from '@/components/ui'
 import { RESOURCE_TYPE_LABELS } from '../constants'
 import type { ResourceType } from '../types'
 
-// Só os tipos de recurso previstos no escopo do Buni API Hub — sem
-// Database/Queue/Job, que não fazem parte do produto.
 const OPTIONS = [
   { value: 'all', label: 'Todos' },
   { value: 'api', label: RESOURCE_TYPE_LABELS.api },

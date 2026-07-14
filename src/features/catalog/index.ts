@@ -1,12 +1,3 @@
-// Barrel público da feature "catalog". Outras camadas (app/, layout/,
-// outras features) só devem importar a partir daqui — nunca de
-// features/catalog/components/* ou features/catalog/hooks/* diretamente.
-//
-// SearchBar/SearchContainer/FilterBar/ResourceSummaryGrid/ResourceTable
-// não são exportados: são detalhe interno de composição do
-// CatalogPage. Ícones, labels, useCatalogFilters e useResources são
-// exportados porque a Sidebar e a feature resource-details precisam
-// deles.
 export { CatalogPage } from './components/CatalogPage'
 export { ResourceStatusBadge } from './components/ResourceStatusBadge'
 export { ResourceSummaryCard } from './components/ResourceSummaryCard'

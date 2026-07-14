@@ -9,13 +9,6 @@ const VARIANT_CLASSES = {
   error: 'bg-danger',
 } as const
 
-/**
- * Sem context/provider global de propósito — cada tela que dispara um
- * toast controla `visible`/`variant` com seu próprio useState +
- * setTimeout. Se surgir necessidade de enfileirar múltiplos toasts
- * simultâneos, um gerenciador central passa a valer a pena — não antes
- * disso.
- */
 export function Toast({ message, visible, variant = 'default' }: ToastProps) {
   return (
     <div

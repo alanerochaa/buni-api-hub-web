@@ -1,8 +1,3 @@
-// Ícones genéricos de ação, reutilizados em mais de um lugar do app
-// (por isso vivem aqui, e não dentro de uma feature) — ex.: CopyIcon
-// era idêntico em ResourceTableRow e ResourceDetailsPage antes desta
-// sprint.
-
 export function CopyIcon() {
   return (
     <svg

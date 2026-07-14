@@ -7,12 +7,6 @@ export interface ResourceFilters {
   environment: ResourceEnvironment | 'all'
 }
 
-/**
- * Cada palavra do termo digitado precisa aparecer em pelo menos uma
- * entrada do searchIndex (AND entre palavras, OR dentro de cada
- * palavra) — permite digitar "consulta banco" e encontrar
- * "Consulta de Bancos" sem exigir substring exata.
- */
 function matchesSearchTerm(resource: Resource, searchTerm: string): boolean {
   const normalized = normalizeSearchTerm(searchTerm)
   if (!normalized) return true

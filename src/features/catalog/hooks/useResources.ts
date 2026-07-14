@@ -10,13 +10,6 @@ export interface UseResourcesResult {
   isLoading: boolean
   error: string | null
 }
-
-/**
- * queryKey ['resources'] é compartilhada por qualquer componente que
- * monte este hook — o React Query deduplica automaticamente chamadas
- * simultâneas e reaproveita o cache (staleTime configurado em
- * lib/queryClient.ts) ao voltar do detalhe para o catálogo.
- */
 export function useResources(): UseResourcesResult {
   const query = useQuery({ queryKey: ['resources'], queryFn: listResources })
 

@@ -10,18 +10,8 @@ export interface UseResourcesHealthResult {
   isLoading: boolean
 }
 
-// Deve ficar >= ao intervalo de varredura do backend (api/.env,
-// HEALTH_CHECK_INTERVAL_MS, default 60s) — pedir mais rápido que isso
-// só devolveria o mesmo dado, sobrecarregando a API à toa.
 const HEALTH_REFETCH_INTERVAL_MS = 60_000
 
-/**
- * Busca o health de todos os recursos numa única chamada (não um
- * GET /health/resources/:id por linha da tabela) e devolve um Map para
- * lookup O(1) por linha. Se a chamada falhar, healthByResourceId fica
- * vazio — cada linha cai no fallback "Desconhecido" já embutido no
- * ResourceStatusBadge, sem quebrar a tabela.
- */
 export function useResourcesHealth(): UseResourcesHealthResult {
   const query = useQuery({
     queryKey: ['health', 'resources'],

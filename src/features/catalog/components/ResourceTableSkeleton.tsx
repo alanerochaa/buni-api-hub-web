@@ -4,7 +4,6 @@ import { ResourceTableHeader } from './ResourceTableHeader'
 
 const SKELETON_ROW_COUNT = 8
 
-/** Mesma forma da ResourceTable real — cabeçalho de verdade (mesmos rótulos), linhas em blocos. */
 export function ResourceTableSkeleton() {
   return (
     <div className="w-full overflow-x-auto rounded-lg border border-neutral-200 bg-white shadow-sm">

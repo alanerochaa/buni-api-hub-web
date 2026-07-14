@@ -1,42 +1,19 @@
 @import 'tailwindcss';
-
-/*
- * Tailwind v4 é CSS-first: tokens de design entram aqui dentro de @theme e
- * viram utilitários automaticamente (--color-x -> bg-x/text-x,
- * --container-x -> max-w-x, --spacing-x -> h-x/w-x/p-x/gap-x etc.).
- * Tipografia, espaçamento, breakpoints, radius e sombras "sem entrada
- * abaixo" usam a escala padrão do Tailwind — só sobrescrevemos/estendemos
- * o que é específico da identidade Buni.
- */
 @theme {
-  /* Marca — azul institucional Buni. Ponto de partida a partir da
-     referência visual; ajustar para os hex oficiais quando o guia de
-     marca estiver disponível. */
   --color-brand-950: #071c33;
   --color-brand-900: #0b2f52;
   --color-brand-800: #123f6b;
   --color-brand-700: #1a5486;
   --color-brand-600: #2f72ab;
-  /* Acento claro da marca — usado no detalhe do logo (ponto) sobre o
-     gradiente escuro do Header, onde os tons acima não têm contraste
-     suficiente para funcionar como destaque. */
   --color-brand-300: #5ec3f2;
   --color-brand-100: #e8f1fa;
-  /* Tom mais claro que brand-100 — hover da Sidebar precisa de um azul
-     mais suave que o do item ativo, para os dois estados ficarem
-     visualmente distintos. */
   --color-brand-50: #f3f8fc;
-
-  /* Semânticas de status — reservadas para badges (Online/Offline/Lento)
-     a partir da Sprint 2. Nenhum componente usa isso ainda. */
   --color-success: #059669;
   --color-success-bg: #d1fae5;
   --color-warning: #d97706;
   --color-warning-bg: #fef3c7;
   --color-danger: #dc2626;
   --color-danger-bg: #fee2e2;
-
-  /* Layout institucional */
-  --container-content: 96rem; /* largura máxima do conteúdo principal — usado por PageContainer */
-  --spacing-header: 9.5rem; /* altura do header institucional — alinhada à referência visual oficial */
+  --container-content: 96rem; 
+  --spacing-header: 9.5rem; 
 }

@@ -10,11 +10,6 @@ export interface ResourceSummaryCardProps {
   iconClassName?: string
 }
 
-/**
- * Puramente apresentacional: não sabe se a contagem é de APIs, Web
- * Services ou Sites — só recebe o que exibir. Quem decide isso (e a
- * cor do ícone) é o ResourceSummaryGrid.
- */
 export function ResourceSummaryCard({
   icon,
   title,
