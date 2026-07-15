@@ -1,1 +1,1 @@
-export { paths } from './paths'
+export { legacyPaths, paths } from './paths'

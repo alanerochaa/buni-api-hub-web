@@ -9,13 +9,9 @@ export function AppShell() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // A entrada de histórico criada pelo carregamento inicial da página
-  // (não por um navigate() do react-router) não tem a `key` que a
-  // <ScrollRestoration> usa para associar posições de scroll — sem
-  // isso, "voltar" para a primeira tela da sessão nunca restaura a
-  // posição certa. Substituir essa entrada por uma gerada pelo próprio
-  // router (replace, sem criar item novo no histórico) resolve isso.
-  // Roda uma única vez, no primeiro mount do AppShell (a rota raiz).
+  // A entrada de histórico do carregamento inicial não tem a `key` que
+  // <ScrollRestoration> usa para restaurar scroll ao voltar. Substituir
+  // por uma entrada gerada pelo router (replace) corrige isso.
   useEffect(() => {
     if (!window.history.state?.key) {
       navigate(location.pathname + location.search, { replace: true })

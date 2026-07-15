@@ -12,7 +12,7 @@ function SearchIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="size-5 shrink-0 text-neutral-400"
+      className="size-4 shrink-0 text-neutral-400"
     >
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
@@ -46,7 +46,7 @@ export interface SearchBarProps {
 
 export function SearchBar({ value, onChange, onClear }: SearchBarProps) {
   return (
-    <div className="focus-within:ring-brand-700 flex w-full items-center gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2.5 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-offset-1 sm:gap-4 sm:px-4">
+    <div className="focus-within:ring-brand-700 flex w-full items-center gap-2.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-offset-1 sm:gap-3">
       <SearchIcon />
       <SearchInput value={value} onChange={(event) => onChange(event.target.value)} />
       <Button

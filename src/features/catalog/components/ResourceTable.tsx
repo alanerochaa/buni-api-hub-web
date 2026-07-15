@@ -37,8 +37,18 @@ export function ResourceTable({
   onCopyUrl,
 }: ResourceTableProps) {
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-neutral-200 bg-white shadow-sm">
-      <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+    <div className="w-full rounded-lg border border-neutral-200 bg-white shadow-sm">
+      <table className="w-full table-fixed border-collapse text-left text-sm">
+        <colgroup>
+          <col style={{ width: '2.75rem' }} />
+          <col />
+          <col style={{ width: '20rem' }} />
+          <col style={{ width: '7rem' }} />
+          <col style={{ width: '8.5rem' }} />
+          <col style={{ width: '8rem' }} />
+          <col style={{ width: '10rem' }} />
+          <col style={{ width: '8rem' }} />
+        </colgroup>
         <ResourceTableHeader />
         <tbody>
           {resources.map((resource) => (

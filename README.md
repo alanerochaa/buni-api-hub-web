@@ -1,402 +1,369 @@
-<div align="center">
+# Buni API Hub — Web
 
-# 💻 web
+Frontend em React/TypeScript/Vite do Portal de Serviços: consulta, pesquisa, filtros, favoritos e cadastro/manutenção (CRUD) do catálogo de APIs, Web Services e Sites.
 
-**Frontend do Buni API Hub — busca, filtra, favorita e exibe a saúde de cada API, Web Service e Site da plataforma.**
-
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
-![TanStack Query](https://img.shields.io/badge/TanStack%20Query-5-FF4154?logo=reactquery&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind-4-38BDF8?logo=tailwindcss&logoColor=white)
-
-</div>
+> Repositório: `buni-api-hub-web` · Parte do ecossistema **Buni API Hub** (`api/` — backend). A `ingestion/` é uma ferramenta auxiliar de importação em lote usada apenas pela `api/`; o Web não tem qualquer dependência dela. O Painel Operacional (NOC) é um frontend independente (`dashboard/`), fora deste repositório — ver [README do `dashboard/`](../dashboard/README.md).
 
 ---
 
-## 📑 Índice
+## Sumário
 
-- [Objetivo](#-objetivo)
-- [Funcionalidades](#-funcionalidades)
-- [Feature-Based Architecture](#-feature-based-architecture)
-- [Fluxo de dados](#-fluxo-de-dados)
-- [Modelo de domínio](#-modelo-de-domínio)
-- [Roteamento e persistência de estado na URL](#-roteamento-e-persistência-de-estado-na-url)
-- [React Query: cache e configuração](#-react-query-cache-e-configuração)
-- [Favoritos](#-favoritos)
-- [Health Check no frontend](#-health-check-no-frontend)
-- [Busca](#-busca)
-- [Componentes de UI compartilhados](#-componentes-de-ui-compartilhados)
-- [Estrutura de pastas](#-estrutura-de-pastas)
-- [Variáveis de ambiente](#-variáveis-de-ambiente)
-- [Como executar](#-como-executar)
-- [Scripts disponíveis](#-scripts-disponíveis)
-- [➕ Como criar uma página nova](#-como-criar-uma-página-nova)
-- [➕ Como criar um hook novo](#-como-criar-um-hook-novo)
-- [➕ Como consumir um endpoint novo](#-como-consumir-um-endpoint-novo)
-- [➕ Como criar um componente novo](#-como-criar-um-componente-novo)
-- [Boas práticas](#-boas-práticas)
-
----
-
-## 🎯 Objetivo
-
-A interface que o desenvolvedor da Buni realmente usa: buscar um recurso pelo nome (amigável ou técnico), filtrar por tipo/ambiente/status, ver se está no ar agora, favoritar o que usa com frequência e copiar/abrir a URL em um clique — tudo consumindo a [`api/`](../api/README.md) via REST, sem nenhuma lógica de negócio duplicada no cliente além do que é puramente de apresentação.
+- [Visão geral](#visão-geral)
+- [Objetivo](#objetivo)
+- [Arquitetura](#arquitetura)
+- [Stack tecnológica](#stack-tecnológica)
+- [Estrutura de diretórios](#estrutura-de-diretórios)
+- [Rotas](#rotas)
+- [Organização das features](#organização-das-features)
+- [Design System (`components/ui`)](#design-system-componentsui)
+- [Fluxo Frontend → Backend](#fluxo-frontend--backend)
+- [Tratamento de erros e mensagens](#tratamento-de-erros-e-mensagens)
+- [Sistema de Toast global](#sistema-de-toast-global)
+- [Estado e cache de dados](#estado-e-cache-de-dados)
+- [Variáveis de ambiente](#variáveis-de-ambiente)
+- [Como executar localmente](#como-executar-localmente)
+- [Build e deploy](#build-e-deploy)
+- [Padrões arquiteturais e boas práticas](#padrões-arquiteturais-e-boas-práticas)
+- [Fluxo de desenvolvimento](#fluxo-de-desenvolvimento)
+- [Roadmap / melhorias futuras](#roadmap--melhorias-futuras)
+- [Licença](#licença)
 
 ---
 
-## ✨ Funcionalidades
+## Visão geral
 
-| Funcionalidade                                                                        | Status                                                                   |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Catálogo de APIs, Web Services e Sites                                                | ✅                                                                       |
-| Busca por nome amigável, nome técnico, palavra-chave ou URL                           | ✅                                                                       |
-| Filtros por Tipo, Ambiente e Status                                                   | ✅                                                                       |
-| Favoritos (persistidos no navegador)                                                  | ✅                                                                       |
-| Status de saúde em tempo (quase) real                                                 | ✅                                                                       |
-| Tela de detalhes por recurso                                                          | ✅                                                                       |
-| Copiar URL / Abrir URL em nova aba                                                    | ✅                                                                       |
-| URL da página como fonte de verdade dos filtros (compartilhável, sobrevive a refresh) | ✅                                                                       |
-| Restauração de scroll ao voltar                                                       | ✅                                                                       |
-| Skeleton loading                                                                      | ✅                                                                       |
-| Empty states dedicados (sem favoritos, sem resultados de busca)                       | ✅                                                                       |
-| Toast de sucesso/erro                                                                 | ✅                                                                       |
-| Tooltips acessíveis (mouse e teclado)                                                 | ✅                                                                       |
-| Sidebar colapsável                                                                    | ✅                                                                       |
-| Ordenação (`Ordenar por`)                                                             | 🚧 decorativo — ver [roadmap do README principal](../README.md#-roadmap) |
+Este projeto é exclusivamente o **Portal de Serviços** (`/`, `/apis`, `/web-services`, `/sites`, `/favoritos`, `/cadastro-recursos/*`, `/sobre`) — voltado ao usuário final: consultar, pesquisar, favoritar e (para quem administra o catálogo) cadastrar/editar/excluir recursos. Não há nenhuma tela de monitoramento neste repositório — o Painel Operacional é um projeto à parte (`dashboard/`), que consome a mesma API de forma totalmente independente.
 
----
+**Responsabilidade do Portal:**
 
-## 🏛️ Feature-Based Architecture
+- Consulta, pesquisa e filtros do catálogo.
+- Favoritos (100% client-side).
+- CRUD administrativo — criar, editar, visualizar e excluir recursos (Cadastro de Recursos).
 
-O código é organizado por **domínio de tela**, não por tipo técnico de arquivo. Cada feature expõe só um barrel público (`index.ts`) — importar um arquivo interno de outra feature é bloqueado por uma regra própria de ESLint (`no-restricted-imports` em `@/features/*/*`).
+**O que o Portal explicitamente não faz:**
+
+- **Não possui regras de negócio** — duplicidade, geração de `id`/`searchIndex`, validação de payload: tudo acontece na `api/`. O Frontend só envia o que o usuário digitou e exibe a resposta.
+- **Não possui persistência própria** — nenhum dado sobrevive fora da API, à exceção dos favoritos (`localStorage`, explicitamente client-side e fora do domínio do catálogo).
+- **Consome exclusivamente a API** — toda a aplicação fala com o backend via REST (`api/`) e nunca acessa arquivos ou dados diretamente; os dados exibidos refletem sempre o estado atual da API, nunca uma cópia local. O Frontend não conhece nem depende da `ingestion/` — essa ferramenta é interna à `api/` e não integra o fluxo do Portal (ver [README da `api/`](../api/README.md#fluxo-dos-dados)).
+
+```
+Usuário
+   ↓
+Frontend React
+   ↓
+API REST
+   ↓
+Catálogo de Recursos
+```
+
+## Objetivo
+
+Dar ao usuário final uma forma rápida de localizar um serviço já catalogado e, a quem mantém o catálogo, um jeito de cadastrar/atualizar recursos sem depender de deploy — enquanto a equipe de operações acompanha a saúde de tudo isso em tempo real numa única tela.
+
+## Arquitetura
+
+Arquitetura *Feature-Based*: cada funcionalidade vive em `src/features/<nome>/` com seus próprios `components/`, `hooks/` e um `index.ts` como barrel público — outras camadas só importam a partir desse barrel, nunca de um caminho interno da feature (regra de lint própria, `no-restricted-imports`).
 
 ```mermaid
-flowchart TD
-    subgraph app["app/"]
-        Providers["providers.tsx<br/>(QueryClientProvider)"]
-        Router["router.tsx<br/>(createBrowserRouter)"]
+flowchart TB
+    subgraph App["app/"]
+        Router["router.tsx<br/>(React Router)"]
+        Providers["providers.tsx<br/>(QueryClient + ToastProvider)"]
     end
 
-    subgraph layout["layout/"]
-        Shell["AppShell"] --> Header & Sidebar & Footer
+    subgraph Shell["layout/ (AppShell)"]
+        Header
+        Sidebar
+        Footer
     end
 
-    subgraph catalog["features/catalog/"]
-        CatalogPage
+    subgraph Features["features/*"]
+        Catalog["catalog"]
+        Admin["admin"]
+        Details["resource-details"]
+        About["about"]
     end
 
-    subgraph details["features/resource-details/"]
-        DetailsPage["ResourceDetailsPage"]
+    subgraph Shared["Camadas compartilhadas"]
+        UI["components/ui<br/>(Design System)"]
+        Services["services/*.service.ts"]
+        Lib["lib/ (axios, errors, toast)"]
     end
 
-    Providers --> Router --> Shell
-    Shell --> CatalogPage
-    Shell --> DetailsPage
+    API[("api/ — REST")]
+
+    Providers --> Router
+    Router --> Shell
+    Shell --> Catalog & Admin & Details & About
+    Catalog & Admin & Details --> UI
+    Catalog & Admin & Details --> Services
+    Services --> Lib --> API
 ```
 
-| Camada                       | O que vive lá                                                                                                                    | Pode ser importado por outras features? |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| `app/`                       | Bootstrap: `App`, `providers` (React Query), `router`                                                                            | —                                       |
-| `layout/`                    | `Header`, `Sidebar`, `Footer`, `AppShell`, `PageContainer` — aparecem em toda rota                                               | —                                       |
-| `components/ui/`             | Design system genérico: `Button`, `Card`, `Badge`, `Select`, `Skeleton`, `Toast`, `Tooltip`, `EmptyState`, ícones compartilhados | Sim, livremente                         |
-| `features/catalog/`          | Busca, filtros, tabela, cards de resumo, favoritos, status de saúde                                                              | Só via `index.ts` (barrel)              |
-| `features/resource-details/` | Tela de detalhes de um recurso                                                                                                   | Só via `index.ts` (barrel)              |
-| `lib/`                       | `axios`, `queryClient`, tratamento de erro compartilhado, clipboard                                                              | Sim, livremente                         |
-| `services/`                  | Chamadas HTTP — **única camada que conhece Axios**                                                                               | Sim, é a fronteira com o backend        |
-| `config/`                    | Validação (Zod) das variáveis de ambiente                                                                                        | Sim                                     |
+## Stack tecnológica
 
----
+| Categoria | Tecnologia |
+|---|---|
+| Framework UI | React ^19.2 |
+| Linguagem | TypeScript ~6.0 (`strict`) |
+| Build tool | Vite ^8.1 (`@vitejs/plugin-react`) |
+| Roteamento | React Router ^7.18 (`createBrowserRouter`) |
+| Estado de servidor / cache | TanStack Query ^5.101 (+ Devtools em dev) |
+| HTTP client | Axios ^1.18 |
+| Estilo | Tailwind CSS ^4.3 (`@tailwindcss/vite`, tema via `@theme` em CSS) |
+| Validação de env | Zod ^4.4 |
+| Lint/format | ESLint 10 (flat config, `react-hooks` + `react-refresh`) + Prettier (`prettier-plugin-tailwindcss`) |
 
-## 🔄 Fluxo de dados
+Não há framework de testes configurado (sem Vitest/Testing Library).
 
-```mermaid
-flowchart LR
-    Page["📄 Página<br/>(CatalogPage)"] --> Hook["🪝 Hook<br/>(useResources)"]
-    Hook --> Service["🔌 Service<br/>(resource.service.ts)"]
-    Service --> Axios["📡 Axios<br/>(lib/axios.ts)"]
-    Axios --> Backend["🚏 api"]
-    Backend -.->|JSON| Axios -.-> Service -.-> Hook -.-> Page
-```
-
-Nenhum componente conhece Axios — só os **hooks** (via React Query) e, por baixo deles, os **services**. Isso é o que permite trocar a implementação de rede sem tocar em nenhum componente.
-
-| Camada  | Exemplo                                                                           | Responsabilidade                                                         |
-| ------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Página  | `CatalogPage.tsx`                                                                 | Orquestra hooks, compõe os componentes visuais                           |
-| Hook    | `useResources`, `useSummary`, `useResourcesHealth`, `useResource`, `useFavorites` | React Query (cache, loading, erro) ou `useSyncExternalStore` (Favoritos) |
-| Service | `resource.service.ts`, `summary.service.ts`, `health.service.ts`                  | Uma função por chamada HTTP, sem estado                                  |
-| Axios   | `lib/axios.ts`                                                                    | Instância única, `baseURL` vinda de `VITE_API_BASE_URL`                  |
-
----
-
-## 🧬 Modelo de domínio
-
-`features/catalog/types.ts` espelha manualmente `ingestion/src/types.ts` / `api/src/models/resource.model.ts` — os três projetos são independentes, sem pacote compartilhado.
-
-```ts
-export type ResourceType = 'api' | 'web-service' | 'site'
-export type ResourceEnvironment = 'homologacao' | 'producao' | 'unknown'
-export type ResourceStatus = 'online' | 'slow' | 'offline' | 'unknown'
-
-export interface Resource {
-  id: string
-  type: ResourceType
-  displayName?: string // nome principal, quando a origem traz um
-  name: string
-  technicalName: string
-  code?: string
-  url?: string
-  environment: ResourceEnvironment
-  category?: string
-  deprecated: boolean
-  active: boolean
-  description?: string
-  keywords: string[]
-  tags: string[]
-  searchIndex: string[]
-}
-```
-
-> [!TIP]
-> **Nunca use `resource.name` ou `resource.displayName` diretamente na UI.** Use sempre `getResourceDisplayName(resource)` (`features/catalog/getResourceDisplayName.ts`) — ele resolve `displayName ?? name` num único lugar.
-
----
-
-## 🧭 Roteamento e persistência de estado na URL
-
-Duas rotas (`app/router.tsx`):
-
-| Path                    | Página                |
-| ----------------------- | --------------------- |
-| `/`                     | `CatalogPage`         |
-| `/resource/:resourceId` | `ResourceDetailsPage` |
-
-Busca, Tipo, Ambiente, Status e "somente Favoritos" **não vivem em `useState`** — vivem na URL (`useCatalogFilters`, via `useSearchParams` do React Router):
+## Estrutura de diretórios
 
 ```
-/?search=cliente&type=api&environment=homologacao&status=online&favorites=1
-```
-
-Isso é o que permite atualizar a página, copiar o link e voltar da tela de detalhes sem perder o que estava filtrado. Todas as escritas usam `{ replace: true }` — um filtro digitado letra a letra não vira uma pilha de entradas no histórico do navegador.
-
-> [!WARNING]
-> `useSearchParams` do React Router calcula o estado anterior a partir do render atual — **duas chamadas síncronas de `setSearchParams` no mesmo clique se atropelam**, porque a segunda parte do mesmo estado desatualizado que a primeira. Por isso existe `setView(type, favoritesOnly)`: sempre que mais de um parâmetro precisa mudar junto (ex.: a Sidebar trocando de "visão"), a atualização é uma **única** chamada.
-
-A `Sidebar` trata Início/APIs/Web Services/Sites/Favoritos como um único grupo mutuamente exclusivo — selecionar qualquer um sai de qualquer outro, evitando o estado inconsistente de "favoritesOnly preso" já corrigido no histórico do projeto.
-
----
-
-## 🔄 React Query: cache e configuração
-
-```ts
-// lib/queryClient.ts
-new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      retry: 1,
-      refetchOnWindowFocus: true,
-    },
-  },
-})
-```
-
-| Hook                 | `queryKey`                | Particularidade                                                                                                                               |
-| -------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `useResources`       | `['resources']`           | Catálogo completo — filtros (tipo/ambiente/busca/status) são aplicados **no cliente**, não via query params                                   |
-| `useSummary`         | `['summary']`             | Cards de resumo                                                                                                                               |
-| `useResourcesHealth` | `['health', 'resources']` | `refetchInterval: 60_000` — o **mesmo intervalo** do sweep do backend; devolve um `Map<resourceId, ResourceHealth>` já pronto pra lookup O(1) |
-| `useResource(id)`    | `['resource', id]`        | `enabled: Boolean(id)`; um 404 vira `resource: undefined`, não um erro genérico                                                               |
-
-> [!NOTE]
-> `refetchOnWindowFocus: true` existe por um motivo concreto: se a API cair no instante em que uma query falha, ela entra em erro permanente (sem `refetchInterval` para `/resources`/`/summary`) — voltar o foco pra aba é o gatilho padrão do React Query pra tentar de novo, evitando que o usuário precise dar F5 manualmente.
-
-Erros de rede viram mensagem amigável via `lib/errors.ts` (`getErrorMessage`), que prioriza o `{ error: string }` devolvido pelo `errorHandler` da API sobre o texto técnico do Axios.
-
----
-
-## ⭐ Favoritos
-
-Guardados no **`localStorage`** do navegador (`buni-api-hub:favorites`), sem nenhuma chamada ao backend — puramente client-side.
-
-```mermaid
-flowchart LR
-    Star["⭐ clique na estrela"] --> Store["favoritesStore.ts<br/>(Set + localStorage)"]
-    Store -->|notifica| Sub1["Card 'Favoritos'"]
-    Store -->|notifica| Sub2["Linha da tabela"]
-    Store -->|notifica| Sub3["Tela de detalhes"]
-    Store -->|notifica| Sub4["Menu 'Favoritos' da Sidebar"]
-```
-
-- `favoritesStore.ts` é um _external store_ simples (Set em memória + `localStorage`), com um pub/sub próprio — o evento `storage` do navegador só dispara em **outras** abas, então esse pub/sub é quem avisa os componentes da própria aba.
-- `useFavorites()` lê esse store via `useSyncExternalStore` do React — qualquer componente que chame o hook atualiza **instantaneamente** quando qualquer outro favorita/desfavorita, sem prop drilling.
-- Clicar em "Favoritos" na Sidebar filtra a tabela para mostrar só os favoritados (`?favorites=1`); com zero favoritos, aparece um Empty State dedicado com um botão para voltar ao catálogo completo.
-
----
-
-## ❤️ Health Check no frontend
-
-O status de cada recurso (🟢 Online / 🟡 Lento / 🔴 Offline / ⚪ Desconhecido) vem de `GET /health/resources` — uma **única chamada** para a tabela inteira (`useResourcesHealth`), nunca uma por linha:
-
-```ts
-const { healthByResourceId } = useResourcesHealth() // Map<resourceId, ResourceHealth>
-```
-
-- Cor e rótulo de cada status vêm de `RESOURCE_STATUS_CONFIG` (`features/catalog/constants.ts`) — **fonte única de verdade**, reaproveitada pelo `ResourceStatusBadge` (tabela e tela de detalhes) e pelo `StatusFilter` (as opções do filtro são geradas a partir desse mesmo objeto, então um status novo adicionado ali aparece no filtro automaticamente).
-- Falha na chamada de health (ou recurso que ainda não passou pela primeira varredura) cai no fallback `'unknown'` — a tabela nunca quebra por falta desse dado.
-- Detalhes de como o status é calculado: [api/README.md#-health-check](../api/README.md#-health-check).
-
----
-
-## 🔎 Busca
-
-Um único campo de texto livre (`SearchBar`), aplicado sobre `resource.searchIndex` — array já normalizado (minúsculo, sem acento) gerado pela [`ingestion/`](../ingestion/README.md#-como-o-searchindex-funciona):
-
-```ts
-// filterResources.ts
-function matchesSearchTerm(resource: Resource, searchTerm: string): boolean {
-  const words = normalizeSearchTerm(searchTerm).split(/\s+/).filter(Boolean)
-  return words.every((word) => resource.searchIndex.some((entry) => entry.includes(word)))
-}
-```
-
-Cada palavra digitada precisa aparecer em **alguma** entrada do `searchIndex` (AND entre palavras, OR dentro de cada palavra) — digitar `"consulta banco"` encontra `"Consulta de Bancos"` sem exigir substring exata. `normalizeSearchTerm.ts` no frontend usa a **mesma normalização** que a `ingestion/` usa para montar o índice — precisam ser idênticas para o termo digitado bater com o que foi indexado.
-
----
-
-## 🧩 Componentes de UI compartilhados
-
-| Componente   | Uso                                                                                                    |
-| ------------ | ------------------------------------------------------------------------------------------------------ |
-| `Button`     | Variantes `primary` / `secondary` / `ghost`, tamanhos `sm` / `md` / `lg`                               |
-| `Card`       | Container com borda/sombra padrão                                                                      |
-| `Badge`      | Pill de texto (Tipo, Ambiente, Tags, Keywords)                                                         |
-| `Select`     | `<select>` nativo estilizado, sempre controlado (`value`/`onChange`)                                   |
-| `Skeleton`   | Bloco de loading genérico — a forma vem de `className` de quem consome                                 |
-| `Toast`      | `variant: 'default' \| 'error'`, sem fila/provider global (um disparo por tela)                        |
-| `Tooltip`    | CSS puro (`group-hover`/`group-focus-within`) — funciona no mouse e no teclado                         |
-| `EmptyState` | Ícone + título + descrição + ação opcional — não sabe se é "sem favoritos" ou "sem resultado de busca" |
-| `icons.tsx`  | `CopyIcon`, `StarIcon`, `ExternalLinkIcon` — reutilizados entre a tabela e a tela de detalhes          |
-
----
-
-## 📁 Estrutura de pastas
-
-```text
 web/
-└── src/
-    ├── app/                       Bootstrap: App, providers (React Query), router
-    ├── components/ui/              Design system genérico (ver tabela acima)
-    ├── config/env.ts               Validação (Zod) de VITE_API_BASE_URL
-    ├── features/
-    │   ├── catalog/
-    │   │   ├── components/          CatalogPage, SearchBar, FilterBar, ResourceTable, cards...
-    │   │   ├── hooks/                useCatalogFilters, useResources, useResourcesHealth, useFavorites, useSummary
-    │   │   ├── constants.ts          Labels e config de status (fonte única de verdade)
-    │   │   ├── types.ts              Modelo de domínio (espelha o backend)
-    │   │   ├── filterResources.ts    Filtro puro por tipo/ambiente/busca
-    │   │   ├── getResourceDisplayName.ts
-    │   │   ├── favoritesStore.ts     External store de favoritos (Set + localStorage)
-    │   │   └── index.ts              Barrel público
-    │   └── resource-details/
-    │       ├── components/           ResourceDetailsPage, ResourceDetailsSkeleton
-    │       ├── hooks/useResource.ts
-    │       └── index.ts
-    ├── layout/                      Header, Sidebar, Footer, AppShell, PageContainer
-    ├── lib/                         axios, queryClient, errors, clipboard
-    ├── routes/                      paths.ts (definição centralizada de rotas)
-    └── services/                    resource.service, summary.service, health.service
+├── src/
+│   ├── app/
+│   │   ├── App.tsx               # AppProviders + RouterProvider
+│   │   ├── providers.tsx         # QueryClientProvider + ToastProvider
+│   │   ├── router.tsx            # todas as rotas
+│   │   └── legacyRedirects.tsx   # redirects de URLs antigas com :id dinâmico
+│   ├── assets/
+│   │   ├── images/
+│   │   └── styles/index.css      # tema Tailwind v4 (@theme)
+│   ├── components/ui/            # Design System (ver seção própria)
+│   ├── config/
+│   │   └── env.ts                # validação Zod de VITE_API_BASE_URL
+│   ├── features/
+│   │   ├── about/
+│   │   ├── admin/                # Cadastro de Recursos (CRUD)
+│   │   ├── catalog/               # Portal — busca, filtros, favoritos
+│   │   └── resource-details/
+│   ├── layout/
+│   │   ├── AppShell.tsx  Header.tsx  Sidebar.tsx  Footer.tsx  Logo.tsx  PageContainer.tsx
+│   ├── lib/
+│   │   ├── axios.ts               # instância única + interceptor global de erro
+│   │   ├── errors.ts              # getErrorMessage()
+│   │   ├── apiErrorMessage.ts     # resolveApiErrorMessage() — lógica central
+│   │   ├── httpStatusMessages.ts  # mapa de mensagens por status HTTP
+│   │   ├── toastMessages.ts       # SUCCESS_MESSAGES centralizadas
+│   │   ├── clipboard.ts
+│   │   └── queryClient.ts
+│   ├── routes/
+│   │   ├── paths.ts               # fonte única de todas as URLs da app
+│   │   └── index.ts
+│   ├── services/
+│   │   ├── resource.service.ts  adminResource.service.ts  summary.service.ts
+│   │   └── health.service.ts
+│   ├── main.tsx
+│   └── vite-env.d.ts
+├── vite.config.ts
+├── eslint.config.js
+├── tsconfig.app.json / tsconfig.node.json
+└── package.json
 ```
 
----
+## Rotas
 
-## ⚙️ Variáveis de ambiente
+Definidas centralmente em `routes/paths.ts` e registradas em `app/router.tsx`. **Nenhum módulo é representado por query parameter** — `type`/`favoritos` são rotas de verdade; só filtros temporários (`search`, `environment`, `status`) continuam em query string.
 
-| Variável            | Default                 | Descrição                              |
-| ------------------- | ----------------------- | -------------------------------------- |
-| `VITE_API_BASE_URL` | `http://localhost:3333` | Base URL da [`api/`](../api/README.md) |
+| Rota | Dentro do AppShell? | Página | Descrição |
+|---|---|---|---|
+| `/` | Sim | `CatalogPage` (`view="all"`) | Catálogo completo |
+| `/apis` | Sim | `CatalogPage` (`view="api"`) | Só APIs |
+| `/web-services` | Sim | `CatalogPage` (`view="web-service"`) | Só Web Services |
+| `/sites` | Sim | `CatalogPage` (`view="site"`) | Só Sites |
+| `/favoritos` | Sim | `CatalogPage` (`view="favorites"`) | Só recursos favoritados |
+| `/resource/:resourceId` | Sim | `ResourceDetailsPage` | Detalhe de um recurso |
+| `/sobre` | Sim | `AboutPage` | Página institucional |
+| `/cadastro-recursos` | Sim | `AdminResourcesPage` | Listagem administrativa (CRUD) |
+| `/cadastro-recursos/novo` | Sim | `ResourceFormPage` (`mode="create"`) | Criar recurso |
+| `/cadastro-recursos/:resourceId` | Sim | `ResourceViewPage` | Visualizar recurso (admin) |
+| `/cadastro-recursos/:resourceId/editar` | Sim | `ResourceFormPage` (`mode="edit"`) | Editar recurso |
 
----
+**Compatibilidade com URLs antigas** — redirecionam automaticamente (`<Navigate replace>`), sem renderizar tela própria:
 
-## ▶️ Como executar
+- `/admin/recursos*` → `/cadastro-recursos*` (rotas antigas do módulo administrativo).
+- `/?type=api` \| `web-service` \| `site` → `/apis` \| `/web-services` \| `/sites`.
+- `/?favorites=1` → `/favoritos`.
+
+## Organização das features
+
+Cada feature em `src/features/<nome>/` segue o mesmo formato: `components/`, `hooks/` (quando há lógica reaproveitável), arquivos utilitários locais e um `index.ts` — o único ponto de importação permitido para quem está fora da feature.
+
+### `catalog/` — Portal, consulta pública
+
+- **`CatalogPage`** recebe `view` (definida pela rota) e deriva `type`/`favoritesOnly` internamente — não lê isso de query string.
+- Filtros de `search`/`environment`/`status` via `useCatalogFilters` (query string, `useSearchParams`, sempre com `{replace:true}`).
+- Pipeline client-side: `useResources()` (catálogo completo) → filtro por favoritos (se aplicável) → `filterResources()` (tipo/ambiente/busca via `searchIndex`) → filtro por `status` (usando o health de cada recurso) → paginação (`PAGE_SIZE = 30`).
+- **Favoritos**: `favoritesStore.ts` — external store próprio (Set + `localStorage`, chave `buni-api-hub:favorites`), consumido via `useSyncExternalStore` em `useFavorites()`. 100% client-side, sem endpoint de favoritos na API.
+- **Status de saúde**: `useResourcesHealth()` busca `GET /health/resources` uma vez para toda a tabela, com `refetchInterval` de 60s.
+- `ResourceSummaryGrid` mostra 4 cards (API/Web Service/Site — de `GET /summary` — e Favoritos, calculado no cliente).
+- **Planejado**: o `SortFilter` (ordenação por Nome/Última atualização/Tipo) existe visualmente mas ainda não está conectado a nenhuma lógica de ordenação — é decorativo hoje.
+
+### `admin/` — Cadastro de Recursos (CRUD)
+
+- `AdminResourcesPage` — tabela densa (componente `Table` do Design System), filtros locais (`useFilters`, em memória, não em URL), ordenação por Nome/Última atualização, paginação de 30 itens.
+- `ResourceFormPage` (`mode: create | edit`) — formulário único em seções (Informações Gerais, Endereço, Organização, Configuração, Observações); no modo `create` há o botão "Salvar e Novo".
+- `ResourceViewPage` — leitura, com atalho para edição.
+- `DeleteResourceModal` — confirmação antes de excluir.
+- Mutações (`useCreateResource`, `useUpdateResource`, `useDeleteResource`) usam `useMutation` do TanStack Query e invalidam as queries `['resources']`/`['summary']` no sucesso, mantendo o Portal sincronizado sem recarregar a página.
+
+### `resource-details/`
+
+- `ResourceDetailsPage` — detalhe completo de um recurso (`GET /resources/:id`), com favoritar, copiar URL, compartilhar link e abrir em nova aba.
+
+### `about/`
+
+- `AboutPage` — página institucional estática.
+
+## Design System (`components/ui`)
+
+Componentes genéricos, sem conhecimento de domínio, cada um em sua própria pasta com barrel próprio:
+
+| Componente | Propósito |
+|---|---|
+| `Badge` | Rótulo pequeno — variantes `neutral`/`success`/`danger`/`warning` |
+| `Button` | Variantes `primary`/`secondary`/`ghost`, tamanhos `sm`/`md`/`lg` |
+| `Card` | Container com borda/sombra padrão |
+| `EmptyState` | Estado vazio genérico (ícone + título + descrição + ação opcional) |
+| `Input` / `Textarea` / `Select` | Campos de formulário com `label`, `error`, tamanhos `md`/`sm` |
+| `Modal` | Diálogo modal simples |
+| `Pagination` | Paginação (`page`/`pageCount`/`onPageChange`) |
+| `Skeleton` | Placeholder de carregamento |
+| `Table` | Tabela genérica reutilizável — colunas com largura/alinhamento/ordenação configuráveis |
+| `Toast` + `ToastProvider` | Sistema de notificação global (ver seção própria) |
+| `Tooltip` | Dica contextual, acessível via teclado |
+| `ComingSoonPage` | Placeholder para funcionalidades futuras |
+
+## Fluxo Frontend → Backend
+
+Todo acesso à API passa pela mesma instância Axios (`lib/axios.ts`) e por uma camada de `services/` — **nenhuma página chama `fetch`/`axios` diretamente**.
+
+```mermaid
+sequenceDiagram
+    participant UI as Componente (ex. ResourceFormPage)
+    participant Hook as Hook (ex. useCreateResource)
+    participant Svc as services/adminResource.service.ts
+    participant Axios as lib/axios.ts (instância + interceptor)
+    participant API as api/ (REST)
+
+    UI->>Hook: create(input)
+    Hook->>Svc: createResource(input)
+    Svc->>Axios: api.post('/resources', input)
+    Axios->>API: POST /resources
+    alt sucesso
+        API-->>Axios: 201 Created
+        Axios-->>Svc: response.data
+        Svc-->>Hook: Resource
+        Hook->>Hook: invalida queries ['resources'], ['summary']
+        Hook-->>UI: Promise resolvida
+    else erro
+        API-->>Axios: 4xx/5xx { status, code, message }
+        Axios->>Axios: interceptor resolve friendlyMessage
+        Axios-->>Svc: rejeita com erro + friendlyMessage
+        Svc-->>Hook: rejeita
+        Hook-->>UI: showToast(getErrorMessage(error), 'error')
+    end
+```
+
+## Tratamento de erros e mensagens
+
+Interceptor de resposta global em `lib/axios.ts`: toda falha de requisição passa por ele **uma única vez**, que calcula a mensagem amigável (`resolveApiErrorMessage`, em `lib/apiErrorMessage.ts`) e a anexa ao erro (`error.friendlyMessage`) antes de propagar — nenhuma tela precisa reimplementar essa lógica.
+
+Prioridade de resolução da mensagem:
+
+1. **Mensagem enviada pelo backend** (`error.response.data.message`, do envelope `{status, code, message}` da API) — sempre a primeira opção.
+2. **Timeout** (`error.code === 'ECONNABORTED'` ou mensagem contendo "timeout") → mensagem fixa de timeout.
+3. **Sem resposta do servidor** (erro de rede) → mensagem fixa de conexão.
+4. **Mapa por status HTTP** (`lib/httpStatusMessages.ts`, cobre 400/401/403/404/409/422/429/500/502/503/504) — rede de segurança, usada só se o backend não mandar `message`.
+5. **Fallback do chamador** (parâmetro opcional de `getErrorMessage(error, fallback)`) — usado apenas para erros que não vieram do Axios.
+
+`lib/errors.ts` (`getErrorMessage`) é a função pública consumida por todos os hooks — mantém a mesma assinatura desde antes dessa camada existir, então nenhum hook precisou mudar quando o interceptor foi introduzido.
+
+## Sistema de Toast global
+
+`ToastProvider` (`components/ui/Toast/`) é montado **uma única vez**, acima do `RouterProvider` (em `app/providers.tsx`) — por isso um toast disparado imediatamente antes de um redirect (ex.: "Recurso cadastrado com sucesso." seguido de voltar para a listagem) continua visível na tela seguinte, em vez de ser perdido no unmount da página de origem.
+
+- `useToast()` expõe `showToast(message, variant?)`, `variant` ∈ `success` (default) `| info | warning | error`, cada um com cor e ícone próprios.
+- Mensagens de sucesso centralizadas em `lib/toastMessages.ts` (`SUCCESS_MESSAGES`): cadastro, edição, exclusão, favoritar/desfavoritar, copiar URL/link.
+
+## Estado e cache de dados
+
+TanStack Query é a única fonte de estado de servidor — sem Redux/Zustand/Context próprio para dados remotos. `staleTime` padrão de 30s (`lib/queryClient.ts`), `retry: 1`. Query keys usadas: `['resources']`, `['resource', id]`, `['summary']`, `['health', 'resources']`. Mutações do módulo administrativo invalidam `['resources']` e `['summary']` no sucesso — o Portal reflete a mudança sem reload manual.
+
+Estado verdadeiramente local (favoritos) usa `localStorage` diretamente, fora do React Query, por não ser um dado de servidor.
+
+## Variáveis de ambiente
+
+| Variável | Obrigatória | Default | Descrição |
+|---|---|---|---|
+| `VITE_API_BASE_URL` | Não | `http://localhost:3333` | URL base da API consumida pelo frontend |
+
+Validada via Zod em `config/env.ts` — falha rápida (erro fatal com mensagem detalhada) se definida com um valor que não seja uma URL válida. O `.env.example` do repositório aponta para uma URL de produção (`https://buni-api-hub.onrender.com`), então em desenvolvimento local normalmente se sobrescreve essa variável para apontar para a API local.
+
+## Como executar localmente
+
+Pré-requisitos: Node.js compatível com Vite 8/TypeScript 6, npm, e a API (`api/`) rodando (local ou remota).
 
 ```bash
 cd web
+cp .env.example .env       # ajuste VITE_API_BASE_URL para sua API local, se necessário
 npm install
-cp .env.example .env   # ajuste se a api/ não estiver em localhost:3333
-npm run dev
+npm run dev                 # Vite dev server, http://localhost:5173
 ```
 
-> [!IMPORTANT]
-> Requer a [`api/`](../api/README.md) no ar — este projeto não lê nenhum arquivo estático local, todo dado vem da API real via HTTP.
+Outros scripts:
 
-## 📜 Scripts disponíveis
-
-| Comando                | Descrição                                     |
-| ---------------------- | --------------------------------------------- |
-| `npm run dev`          | Sobe o servidor de desenvolvimento (Vite)     |
-| `npm run build`        | Typecheck + build de produção em `dist/`      |
-| `npm run preview`      | Serve o build de produção localmente          |
-| `npm run typecheck`    | Verifica os tipos com `tsc -b --noEmit`       |
-| `npm run lint`         | Roda o ESLint                                 |
-| `npm run lint:fix`     | Roda o ESLint corrigindo o que for corrigível |
-| `npm run format`       | Formata o projeto com Prettier                |
-| `npm run format:check` | Verifica formatação sem alterar arquivos      |
-
----
-
-## ➕ Como criar uma página nova
-
-1. Crie a feature em `features/minha-feature/` (`components/`, `hooks/` se precisar, `types.ts` se tiver modelo próprio, `index.ts` como barrel).
-2. Adicione o path em `routes/paths.ts`.
-3. Registre a rota em `app/router.tsx`, como filha do `AppShell`.
-4. Exporte só o componente de página pelo barrel — o resto da feature é implementação interna.
-
-## ➕ Como criar um hook novo
-
-Um hook de dados é uma casca fina sobre `useQuery`, devolvendo um formato simples e estável para o componente:
-
-```ts
-export function useAlgumaCoisa() {
-  const query = useQuery({ queryKey: ['algo'], queryFn: getAlgo })
-  return {
-    dado: query.data,
-    isLoading: query.isLoading,
-    error: query.isError ? getErrorMessage(query.error, 'Mensagem amigável.') : null,
-  }
-}
+```bash
+npm run typecheck    # tsc -b --noEmit
+npm run lint          # eslint .
+npm run lint:fix
+npm run format        # prettier --write .
+npm run preview        # serve o build de produção localmente
 ```
 
-## ➕ Como consumir um endpoint novo
+Não há suíte de testes automatizados configurada.
 
-1. **Service** — uma função async por chamada, em `services/`, usando a instância `api` de `lib/axios.ts`. Nenhum componente deve importar Axios diretamente.
-2. **Hook** — encapsule o service num hook de `useQuery` (ou `useMutation`, se vier a existir uma escrita).
-3. **Componente** — consuma só o hook.
+## Build e deploy
 
-```
-Componente → Hook (React Query) → Service (Axios) → api/
+```bash
+npm run build   # tsc -b (typecheck) + vite build → dist/
 ```
 
-## ➕ Como criar um componente novo
+O resultado é um conjunto de arquivos estáticos (`dist/`) — qualquer servidor de arquivos estáticos ou CDN serve a aplicação, desde que configurado para redirecionar todas as rotas para `index.html` (SPA fallback), já que o roteamento é 100% client-side via React Router.
 
-- Genérico, sem conhecimento de domínio (ex.: um novo primitivo visual) → `components/ui/`.
-- Específico de uma tela (ex.: um card novo do catálogo) → dentro da feature correspondente, em `components/`.
-- Reaproveite ícones/tokens de cor já existentes (`assets/styles/index.css`, `@theme`) antes de criar um novo.
+Não há pipeline de CI/CD, Dockerfile ou configuração de deploy versionada neste repositório. O `.env.example` referencia uma URL de API hospedada no Render, o que sugere o ambiente de produção alvo, mas a configuração de hospedagem em si não está neste repositório.
 
----
+## Padrões arquiteturais e boas práticas
 
-## ✅ Boas práticas
+- **Feature-Based Architecture** com barrel público obrigatório por feature, reforçada por regra de lint (`no-restricted-imports`) que impede importar um caminho interno de outra feature.
+- **Camada de serviços dedicada** (`services/*.service.ts`) — nenhum componente chama Axios/`fetch` diretamente.
+- **Tratamento de erro centralizado** via interceptor Axios + resolver único, evitando duplicação de lógica de mensagens em cada tela.
+- **Toast global** em vez de estado de toast duplicado por página.
+- **Tipagem forte de ponta a ponta**, com o modelo `Resource` espelhando manualmente o do backend (`api/src/models/resource.model.ts`).
+- **Rotas semânticas** — nenhum módulo do sistema é representado por query parameter; query string reservada só para filtros/paginação temporários.
+- **Design System isolado** (`components/ui`) sem conhecimento de domínio, reaproveitado por todas as features.
 
-- ✔️ Componentes nunca importam `axios` — sempre através de um hook.
-- ✔️ Outras features só se importam pelo barrel (`@/features/catalog`, nunca `@/features/catalog/components/X`) — regra reforçada por ESLint.
-- ✔️ Filtros/busca/favoritos vivem na URL ou no `localStorage`, nunca em `useState` solto — é isso que torna tudo compartilhável e sobrevivente a refresh.
-- ✔️ Rode `npm run typecheck && npm run lint && npm run build` antes de qualquer PR.
-- ❌ Não duplique a lógica de "qual nome mostrar" — use sempre `getResourceDisplayName`.
-- ❌ Não crie um segundo lugar com os rótulos/cores de status — use `RESOURCE_STATUS_CONFIG`.
+## Fluxo de desenvolvimento
 
----
+1. Nova página → cria-se a feature (ou se estende uma existente) em `features/`, com rota registrada em `routes/paths.ts` + `app/router.tsx`.
+2. Nova chamada à API → adiciona-se função em `services/*.service.ts`; nunca chamar `api` (Axios) diretamente de um componente.
+3. Novo componente de UI reutilizável entre features → `components/ui/`; específico de uma feature → dentro da própria feature.
+4. `npm run typecheck && npm run lint` antes de qualquer commit.
+5. Sem testes automatizados — validação manual via `npm run dev` é o processo atual.
 
-<div align="center">
+## Roadmap / melhorias futuras
 
-</div>
+> Itens listados aqui **não estão implementados** — documentados para transparência sobre a direção do projeto, não como funcionalidade existente.
+
+- **Ordenação funcional** no Catálogo (`SortFilter` hoje é decorativo).
+- **Endpoint de favoritos no backend** — hoje é 100% `localStorage`, não sincroniza entre dispositivos/sessões.
+- **Autenticação** — não há login nem controle de acesso ao módulo de Cadastro de Recursos.
+- **Testes automatizados** (unitários e de integração de componentes).
+- **Pipeline de CI/CD** (build, typecheck, lint, deploy automatizados).
+- **Breadcrumbs genéricos** — hoje só a tela de detalhe do recurso tem navegação estrutural própria.
+
+Melhorias específicas do Painel Operacional (monitoramento) estão priorizadas no [README do `dashboard/`](../dashboard/README.md) e em [`api/docs/dashboard-operacional.md`](../api/docs/dashboard-operacional.md#melhorias-futuras) — não fazem parte deste repositório.
+
+## Licença
+
+Não há arquivo de licença (`LICENSE`) neste repositório. Projeto proprietário/interno — uso restrito à organização, salvo indicação contrária de quem administra o repositório.

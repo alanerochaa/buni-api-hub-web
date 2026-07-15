@@ -69,10 +69,13 @@ export function ResourceTableRow({ resource, health, onCopyUrl }: ResourceTableR
       <td className="px-3 py-2.5 whitespace-nowrap">
         <FavoriteButton resourceId={resource.id} />
       </td>
-      <td className="px-3 py-2.5 font-medium whitespace-nowrap text-neutral-900">
+      <td
+        className="truncate px-3 py-2.5 font-medium text-neutral-900"
+        title={getResourceDisplayName(resource)}
+      >
         {getResourceDisplayName(resource)}
       </td>
-      <td className="max-w-[220px] px-3 py-2.5 font-mono text-xs" title={resource.url}>
+      <td className="px-3 py-2.5 font-mono text-xs" title={resource.url}>
         {resource.url ? (
           <a
             href={resource.url}

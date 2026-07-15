@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { StarIcon } from '@/components/ui'
-import { ApiIcon, SiteIcon, useCatalogFilters, WebServiceIcon } from '@/features/catalog'
-import type { ResourceType } from '@/features/catalog'
+import { AdminIcon } from '@/features/admin'
+import { ApiIcon, SiteIcon, WebServiceIcon } from '@/features/catalog'
 import { paths } from '@/routes'
 
 const FOCUS_RING_CLASSES =
@@ -64,31 +64,28 @@ function InfoIcon() {
   )
 }
 
-interface TypeNavItem {
-  value: ResourceType | 'all'
-  label: string
-  icon: ReactNode
-}
-
 interface RouteNavItem {
   href: string
   label: string
   icon: ReactNode
 }
 
-// "Início" limpa o filtro Tipo; os três seguintes o definem. Nenhum
-// deles é uma rota — todos continuam na mesma tela, só mudando o
-// mesmo filtro que o FilterBar já usa.
-const HOME_ITEM: TypeNavItem = { value: 'all', label: 'Início', icon: <HomeIcon /> }
-
-const RESOURCE_TYPE_ITEMS: TypeNavItem[] = [
-  { value: 'api', label: 'APIs', icon: <ApiIcon className="size-5" /> },
-  { value: 'web-service', label: 'Web Services', icon: <WebServiceIcon className="size-5" /> },
-  { value: 'site', label: 'Sites', icon: <SiteIcon className="size-5" /> },
+// Início/APIs/Web Services/Sites são rotas reais e mutuamente
+// exclusivas — cada uma decide sua própria "view" do catálogo (ver
+// features/catalog/components/CatalogPage.tsx), sem query params.
+const CATALOG_ITEMS: RouteNavItem[] = [
+  { href: paths.catalog.getHref(), label: 'Início', icon: <HomeIcon /> },
+  { href: paths.apis.getHref(), label: 'APIs', icon: <ApiIcon className="size-5" /> },
+  { href: paths.webServices.getHref(), label: 'Web Services', icon: <WebServiceIcon className="size-5" /> },
+  { href: paths.sites.getHref(), label: 'Sites', icon: <SiteIcon className="size-5" /> },
 ]
 
 const INFO_ITEMS: RouteNavItem[] = [
   { href: paths.about.getHref(), label: 'Sobre', icon: <InfoIcon /> },
+]
+
+const ADMIN_ITEMS: RouteNavItem[] = [
+  { href: paths.admin.resources.getHref(), label: 'Cadastro de Recursos', icon: <AdminIcon /> },
 ]
 
 // Breakpoint md do Tailwind (768px): abaixo disso é considerado mobile
@@ -109,18 +106,14 @@ function itemClasses(isActive: boolean, isExpanded: boolean): string {
 }
 
 /**
- * A Sidebar é layout/ (aparece em toda rota), mas seus itens de tipo
- * pilotam o filtro Tipo da feature catalog — por isso importa
- * tipo/ícones/hook do barrel público de catalog, em vez de reinventar
- * esse conhecimento aqui.
+ * A Sidebar é layout/ (aparece em toda rota). Todos os itens são
+ * navegação real via <Link> — nenhum deles pilota filtro por query
+ * param; importa ícones do barrel público de catalog só por
+ * conveniência visual, sem reinventá-los aqui.
  */
 export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(getInitialExpandedState)
-  const { filters, setView } = useCatalogFilters()
   const location = useLocation()
-  const navigate = useNavigate()
-
-  const isOnCatalog = location.pathname === paths.catalog.path
 
   function renderLabel(label: string) {
     return (
@@ -134,65 +127,12 @@ export function Sidebar() {
     )
   }
 
-  // Início/APIs/Web Services/Sites/Favoritos formam um único grupo
-  // mutuamente exclusivo: exatamente uma "visão" ativa por vez.
-  // setView já lida com isso quando a Sidebar está montada na própria
-  // tela do catálogo — mas useSearchParams só enxerga a URL da rota
-  // atual, então clicar num filtro a partir da tela Sobre precisa
-  // navegar explicitamente de volta pro catálogo com o filtro aplicado.
-  function goToFilteredCatalog(type: ResourceType | 'all', favoritesOnly: boolean) {
-    if (isOnCatalog) {
-      setView(type, favoritesOnly)
-      return
-    }
-    const params = new URLSearchParams()
-    if (type !== 'all') params.set('type', type)
-    if (favoritesOnly) params.set('favorites', '1')
-    const query = params.toString()
-    navigate(query ? `${paths.catalog.getHref()}?${query}` : paths.catalog.getHref())
-  }
-
-  function renderTypeItem(item: TypeNavItem) {
-    const isActive = isOnCatalog && filters.type === item.value && !filters.favoritesOnly
-
-    return (
-      <button
-        key={item.value}
-        type="button"
-        onClick={() => goToFilteredCatalog(item.value, false)}
-        title={item.label}
-        aria-label={item.label}
-        aria-pressed={isActive}
-        className={itemClasses(isActive, isExpanded)}
-      >
-        <span className="shrink-0">{item.icon}</span>
-        {renderLabel(item.label)}
-      </button>
-    )
-  }
-
-  function renderFavoritesItem() {
-    const isActive = isOnCatalog && filters.favoritesOnly
-
-    return (
-      <button
-        type="button"
-        onClick={() => goToFilteredCatalog('all', true)}
-        title="Favoritos"
-        aria-label="Favoritos"
-        aria-pressed={isActive}
-        className={itemClasses(isActive, isExpanded)}
-      >
-        <span className="shrink-0">
-          <StarIcon className="size-5" filled={isActive} />
-        </span>
-        {renderLabel('Favoritos')}
-      </button>
-    )
+  function isRouteActive(href: string): boolean {
+    return location.pathname === href || (href !== '/' && location.pathname.startsWith(`${href}/`))
   }
 
   function renderRouteItem(item: RouteNavItem) {
-    const isActive = location.pathname === item.href
+    const isActive = isRouteActive(item.href)
 
     return (
       <Link
@@ -205,6 +145,25 @@ export function Sidebar() {
       >
         <span className="shrink-0">{item.icon}</span>
         {renderLabel(item.label)}
+      </Link>
+    )
+  }
+
+  function renderFavoritesItem() {
+    const isActive = isRouteActive(paths.favorites.getHref())
+
+    return (
+      <Link
+        to={paths.favorites.getHref()}
+        title="Favoritos"
+        aria-label="Favoritos"
+        aria-current={isActive ? 'page' : undefined}
+        className={itemClasses(isActive, isExpanded)}
+      >
+        <span className="shrink-0">
+          <StarIcon className="size-5" filled={isActive} />
+        </span>
+        {renderLabel('Favoritos')}
       </Link>
     )
   }
@@ -229,10 +188,9 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-0.5 px-2">
-        {renderTypeItem(HOME_ITEM)}
+        {CATALOG_ITEMS.map(renderRouteItem)}
         <div className="my-1.5 border-t border-neutral-200" />
-        {RESOURCE_TYPE_ITEMS.map(renderTypeItem)}
-        <div className="my-1.5 border-t border-neutral-200" />
+        {ADMIN_ITEMS.map(renderRouteItem)}
         {renderFavoritesItem()}
         <div className="my-1.5 border-t border-neutral-200" />
         {INFO_ITEMS.map(renderRouteItem)}

@@ -1,5 +1,5 @@
 export type ResourceType = 'api' | 'web-service' | 'site'
-export type ResourceEnvironment = 'homologacao' | 'producao' | 'unknown'
+export type ResourceEnvironment = 'homologacao' | 'producao' | 'desenvolvimento' | 'unknown'
 
 export interface Resource {
   id: string
@@ -20,6 +20,15 @@ export interface Resource {
   tags: string[]
 
   searchIndex: string[]
+
+  // Módulo administrativo (cadastro manual pela interface): metadados
+  // opcionais, ausentes nos registros importados em lote pela Ingestion.
+  docUrl?: string
+  responsible?: string
+  area?: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type ResourceStatus = 'online' | 'slow' | 'offline' | 'unknown'

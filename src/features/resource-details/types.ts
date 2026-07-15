@@ -1,3 +1,3 @@
-// Tipos do domínio "resource-details" — a definir junto com a primeira
-// tela desta feature.
+// Sem tipos próprios: esta feature reaproveita Resource de
+// features/catalog.
 export {}

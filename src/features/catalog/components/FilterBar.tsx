@@ -1,29 +1,28 @@
-import type { ResourceEnvironment, ResourceStatus, ResourceType } from '../types'
+import type { ResourceEnvironment, ResourceStatus } from '../types'
 import { EnvironmentFilter } from './EnvironmentFilter'
-import { ResourceTypeFilter } from './ResourceTypeFilter'
 import { SortFilter } from './SortFilter'
 import { StatusFilter } from './StatusFilter'
 
 export interface FilterBarProps {
-  type: ResourceType | 'all'
-  onTypeChange: (value: ResourceType | 'all') => void
   environment: ResourceEnvironment | 'all'
   onEnvironmentChange: (value: ResourceEnvironment | 'all') => void
   status: ResourceStatus | 'all'
   onStatusChange: (value: ResourceStatus | 'all') => void
 }
 
+/**
+ * Sem filtro de Tipo aqui de propósito: qual tipo de recurso aparece
+ * é decidido pela rota (/apis, /web-services, /sites — ver
+ * CatalogPage), não por um filtro dentro da própria tela.
+ */
 export function FilterBar({
-  type,
-  onTypeChange,
   environment,
   onEnvironmentChange,
   status,
   onStatusChange,
 }: FilterBarProps) {
   return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <ResourceTypeFilter value={type} onChange={onTypeChange} />
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
       <EnvironmentFilter value={environment} onChange={onEnvironmentChange} />
       <StatusFilter value={status} onChange={onStatusChange} />
       <SortFilter />

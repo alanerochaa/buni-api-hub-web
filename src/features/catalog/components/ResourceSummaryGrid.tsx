@@ -10,18 +10,12 @@ export interface ResourceSummaryGridProps {
   favoritesCount: number
 }
 
-/**
- * Contagens de API/Web Service/Site vêm do GET /summary (agregação
- * feita no backend); Favoritos é só localStorage (useFavorites, via
- * useSyncExternalStore) — por isso chega como prop separada, não faz
- * parte do ResourceSummary que a API devolve.
- */
 export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummaryGridProps) {
   const items = [
     {
       key: 'api',
       title: RESOURCE_TYPE_LABELS.api,
-      description: 'Total de APIs cadastradas.',
+      description: 'APIs Catalogadas.',
       icon: <ApiIcon />,
       iconClassName: 'bg-blue-600 text-white',
       count: summary.apis,
@@ -29,7 +23,7 @@ export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummary
     {
       key: 'web-service',
       title: RESOURCE_TYPE_LABELS['web-service'],
-      description: 'Total de Web Services cadastrados.',
+      description: 'Web Services Catalogados.',
       icon: <WebServiceIcon />,
       iconClassName: 'bg-emerald-600 text-white',
       count: summary.webServices,
@@ -37,7 +31,7 @@ export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummary
     {
       key: 'site',
       title: RESOURCE_TYPE_LABELS.site,
-      description: 'Total de Sites cadastrados.',
+      description: 'Sites Catalogados.',
       icon: <SiteIcon />,
       iconClassName: 'bg-purple-600 text-white',
       count: summary.sites,
@@ -53,7 +47,7 @@ export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummary
   ] as const
 
   return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
         <ResourceSummaryCard
           key={item.key}

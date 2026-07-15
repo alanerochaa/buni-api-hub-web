@@ -9,6 +9,7 @@ export const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
 export const RESOURCE_ENVIRONMENT_LABELS: Record<ResourceEnvironment, string> = {
   homologacao: 'Homologação',
   producao: 'Produção',
+  desenvolvimento: 'Desenvolvimento',
   unknown: 'Desconhecido',
 }
 

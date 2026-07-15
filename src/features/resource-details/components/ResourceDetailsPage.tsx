@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import {
@@ -8,8 +7,8 @@ import {
   CopyIcon,
   ExternalLinkIcon,
   StarIcon,
-  Toast,
   Tooltip,
+  useToast,
 } from '@/components/ui'
 import {
   getResourceDisplayName,
@@ -20,6 +19,7 @@ import {
   useResourcesHealth,
 } from '@/features/catalog'
 import { copyToClipboard } from '@/lib/clipboard'
+import { SUCCESS_MESSAGES } from '@/lib/toastMessages'
 import { paths } from '@/routes'
 
 import { useResource } from '../hooks/useResource'
@@ -72,9 +72,9 @@ interface DetailFieldProps {
 }
 
 /**
- * `href` é opcional — só a URL usa (Sprint 17.1). Os demais campos
- * (Nome técnico etc.) continuam texto simples, sem precisar de uma
- * variante própria de componente.
+ * `href` é opcional — só a URL usa. Os demais campos (Nome técnico
+ * etc.) continuam texto simples, sem precisar de uma variante própria
+ * de componente.
  */
 function DetailField({
   label,
@@ -124,36 +124,30 @@ function ChipList({ items }: { items: string[] }) {
 const FOCUS_RING_CLASSES =
   'outline-none focus-visible:ring-2 focus-visible:ring-brand-700 focus-visible:ring-offset-1'
 
-const TOAST_DURATION_MS = 2000
-
 export function ResourceDetailsPage() {
   const { resourceId } = useParams<{ resourceId: string }>()
   const navigate = useNavigate()
   const { resource, isLoading, error } = useResource(resourceId)
   const { isFavorite, toggleFavorite } = useFavorites()
   const { healthByResourceId } = useResourcesHealth()
-  const [toast, setToast] = useState<{ message: string; variant: 'default' | 'error' } | null>(null)
-
-  function showToast(message: string, variant: 'default' | 'error' = 'default') {
-    setToast({ message, variant })
-    setTimeout(() => setToast(null), TOAST_DURATION_MS)
-  }
+  const { showToast } = useToast()
 
   async function handleCopyUrl() {
     if (!resource?.url) return
     const ok = await copyToClipboard(resource.url)
-    showToast(
-      ok ? 'URL copiada para a área de transferência' : 'Não foi possível copiar a URL.',
-      ok ? 'default' : 'error',
-    )
+    showToast(ok ? SUCCESS_MESSAGES.urlCopied : 'Não foi possível copiar a URL.', ok ? 'success' : 'error')
   }
 
   async function handleShare() {
     const ok = await copyToClipboard(window.location.href)
-    showToast(
-      ok ? 'Link copiado com sucesso.' : 'Não foi possível copiar o link.',
-      ok ? 'default' : 'error',
-    )
+    showToast(ok ? SUCCESS_MESSAGES.linkCopied : 'Não foi possível copiar o link.', ok ? 'success' : 'error')
+  }
+
+  function handleToggleFavorite() {
+    if (!resource) return
+    const wasFavorite = isFavorite(resource.id)
+    toggleFavorite(resource.id)
+    showToast(wasFavorite ? SUCCESS_MESSAGES.favoriteRemoved : SUCCESS_MESSAGES.favoriteAdded)
   }
 
   if (isLoading) {
@@ -235,7 +229,7 @@ export function ResourceDetailsPage() {
               type="button"
               variant="secondary"
               size="sm"
-              onClick={() => toggleFavorite(resource.id)}
+              onClick={handleToggleFavorite}
               aria-pressed={isFavorite(resource.id)}
               className={isFavorite(resource.id) ? 'text-amber-600' : ''}
             >
@@ -304,8 +298,6 @@ export function ResourceDetailsPage() {
         <h3 className="mb-2 text-xs font-medium text-neutral-500">Keywords</h3>
         <ChipList items={resource.keywords} />
       </Card>
-
-      <Toast message={toast?.message ?? ''} visible={toast !== null} variant={toast?.variant} />
     </div>
   )
 }

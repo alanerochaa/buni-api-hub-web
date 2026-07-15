@@ -6,24 +6,45 @@ export interface SelectOption {
   label: string
 }
 
-export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
+const SIZE_CLASSES = {
+  md: { wrapper: 'gap-1.5', label: 'text-sm', select: 'h-10 px-3 pr-9 text-sm' },
+  sm: { wrapper: 'gap-1', label: 'text-xs', select: 'h-8 px-2.5 pr-8 text-sm' },
+} as const
+
+export interface SelectProps
+  extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children' | 'size'> {
   label: string
   options: SelectOption[]
+  size?: keyof typeof SIZE_CLASSES
+  /** Esconde visualmente o label (mantém acessível via sr-only) — usado em barras de filtro compactas. */
+  hideLabel?: boolean
 }
 
-export function Select({ label, options, className = '', id, ...props }: SelectProps) {
+export function Select({
+  label,
+  options,
+  size = 'md',
+  hideLabel = false,
+  className = '',
+  id,
+  ...props
+}: SelectProps) {
   const generatedId = useId()
   const selectId = id ?? generatedId
+  const sizeClasses = SIZE_CLASSES[size]
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={selectId} className="text-sm font-medium text-neutral-700">
+    <div className={`flex flex-col ${sizeClasses.wrapper}`}>
+      <label
+        htmlFor={selectId}
+        className={hideLabel ? 'sr-only' : `font-medium text-neutral-700 ${sizeClasses.label}`}
+      >
         {label}
       </label>
       <div className="relative">
         <select
           id={selectId}
-          className={`focus-visible:ring-brand-700 h-10 w-full appearance-none rounded-md border border-neutral-300 bg-white px-3 pr-9 text-sm text-neutral-900 transition-colors outline-none focus:border-neutral-500 focus-visible:ring-2 focus-visible:ring-offset-1 ${className}`}
+          className={`focus-visible:ring-brand-700 w-full appearance-none rounded-md border border-neutral-300 bg-white text-neutral-900 transition-colors outline-none focus:border-neutral-500 focus-visible:ring-2 focus-visible:ring-offset-1 ${sizeClasses.select} ${className}`}
           {...props}
         >
           {options.map((option) => (
