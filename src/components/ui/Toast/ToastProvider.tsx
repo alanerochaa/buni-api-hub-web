@@ -8,13 +8,9 @@ import { ToastContext } from './ToastContext'
 const TOAST_DURATION_MS = 3000
 
 /**
- * Toast único e global, montado uma vez acima do <RouterProvider/>
- * (ver app/providers.tsx) — sobrevive a navegações, então uma mensagem
- * disparada logo antes de um redirect (ex.: "Recurso cadastrado com
- * sucesso." seguido de voltar para a listagem) continua visível na
- * tela seguinte, em vez de ser desmontada junto com a página de
- * origem. Substitui o padrão anterior de cada página manter seu
- * próprio `useState` + `<Toast/>` local.
+ * Toast único e global, montado acima do <RouterProvider/> — sobrevive
+ * a navegações, então uma mensagem disparada antes de um redirect
+ * continua visível na tela seguinte, em vez de desmontar com a página.
  */
 export function ToastProvider({ children }: PropsWithChildren) {
   const [toast, setToast] = useState<{ message: string; variant: ToastVariant } | null>(null)

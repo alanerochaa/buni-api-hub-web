@@ -59,8 +59,8 @@ export function AdminResourcesPage() {
   const [sortKey, setSortKey] = useState('name')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [resourceToDelete, setResourceToDelete] = useState<Resource | null>(null)
+  const pageSize = DEFAULT_PAGE_SIZE
 
   const sorted = useMemo(() => {
     const list = [...filteredResources]
@@ -92,11 +92,6 @@ export function AdminResourcesPage() {
       setter(value)
       setPage(1)
     }
-  }
-
-  function handlePageSizeChange(size: number) {
-    setPageSize(size)
-    setPage(1)
   }
 
   const columns: TableColumn<Resource>[] = [
@@ -277,7 +272,7 @@ export function AdminResourcesPage() {
         <>
           <div
             className="min-h-64 flex-1 overflow-auto rounded-lg border border-neutral-200"
-            style={{ maxHeight: 'calc(100svh - var(--spacing-header) - 13.5rem)' }}
+            style={{ maxHeight: 'calc(100svh - var(--spacing-header) - 11.5rem)' }}
           >
             <Table
               columns={columns}
@@ -288,16 +283,7 @@ export function AdminResourcesPage() {
               onSort={handleSort}
             />
           </div>
-          <div className="shrink-0 pt-3">
-            <Pagination
-              page={currentPage}
-              pageCount={pageCount}
-              pageSize={pageSize}
-              totalItems={sorted.length}
-              onPageChange={setPage}
-              onPageSizeChange={handlePageSizeChange}
-            />
-          </div>
+          <Pagination page={currentPage} pageCount={pageCount} onPageChange={setPage} />
         </>
       )}
 

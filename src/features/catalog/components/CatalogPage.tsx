@@ -57,8 +57,8 @@ export function CatalogPage({ view }: CatalogPageProps) {
   const { filters, setSearch, setEnvironment, setStatus, clearAll } = useCatalogFilters()
   const { showToast } = useToast()
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [legacySearchParams] = useSearchParams()
+  const pageSize = DEFAULT_PAGE_SIZE
 
   async function handleCopyUrl(resource: Resource) {
     if (!resource.url) return
@@ -94,11 +94,6 @@ export function CatalogPage({ view }: CatalogPageProps) {
   const pageCount = Math.max(1, Math.ceil(filteredResources.length / pageSize))
   const currentPage = Math.min(page, pageCount)
   const pageItems = filteredResources.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-
-  function handlePageSizeChange(size: number) {
-    setPageSize(size)
-    setPage(1)
-  }
 
   const hasNoFavoritesAtAll = favoritesOnly && favoriteIds.size === 0
 
@@ -174,7 +169,7 @@ export function CatalogPage({ view }: CatalogPageProps) {
           <>
             <div
               className="min-h-64 flex-1 overflow-auto"
-              style={{ maxHeight: 'calc(100svh - var(--spacing-header) - 22rem)' }}
+              style={{ maxHeight: 'calc(100svh - var(--spacing-header) - 20rem)' }}
             >
               <ResourceTable
                 resources={pageItems}
@@ -183,18 +178,7 @@ export function CatalogPage({ view }: CatalogPageProps) {
                 onCopyUrl={handleCopyUrl}
               />
             </div>
-            {filteredResources.length > 0 && (
-              <div className="shrink-0 pt-3">
-                <Pagination
-                  page={currentPage}
-                  pageCount={pageCount}
-                  pageSize={pageSize}
-                  totalItems={filteredResources.length}
-                  onPageChange={setPage}
-                  onPageSizeChange={handlePageSizeChange}
-                />
-              </div>
-            )}
+            <Pagination page={currentPage} pageCount={pageCount} onPageChange={setPage} />
           </>
         )}
       </div>

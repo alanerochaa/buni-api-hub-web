@@ -42,13 +42,9 @@ function SortIcon({ direction }: { direction?: 'asc' | 'desc' }) {
 }
 
 /**
- * Tabela genérica reutilizável — colunas configuráveis por quem
- * consome (`render` decide o conteúdo, `width`/`align` decidem o
- * layout), sem conhecimento de domínio. A tabela do catálogo
- * (features/catalog) continua específica; esta serve às telas
- * administrativas. Não define a própria rolagem/borda — quem consome
- * envolve num container com overflow (necessário para o cabeçalho
- * sticky funcionar em relação ao ancestral que realmente rola).
+ * Tabela genérica reutilizável para telas administrativas (a do
+ * catálogo continua própria). Não define rolagem/borda — quem consome
+ * envolve num container com overflow, necessário para o header sticky.
  */
 export function Table<T>({
   columns,
