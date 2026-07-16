@@ -2,7 +2,7 @@
 
 Frontend em React/TypeScript/Vite do Portal de Serviços: consulta, pesquisa, filtros, favoritos e cadastro/manutenção (CRUD) do catálogo de APIs, Web Services e Sites.
 
-> Repositório: `buni-api-hub-web` · Parte do ecossistema **Buni API Hub** (`api/` — backend). A `ingestion/` é uma ferramenta auxiliar de importação em lote usada apenas pela `api/`; o Web não tem qualquer dependência dela. O Painel Operacional (NOC) é um frontend independente (`dashboard/`), fora deste repositório — ver [README do `dashboard/`](../dashboard/README.md).
+> Repositório: `buni-api-hub-web` · Parte do ecossistema **Buni API Hub** (`api/` — backend). A `ingestion/` é uma ferramenta auxiliar de importação em lote usada apenas pela `api/`; o Web não tem qualquer dependência dela. O Painel Operacional (NOC, tela de TV) é um frontend independente (`dashboard/`), fora deste repositório — ver [README do `dashboard/`](../dashboard/README.md). O Web consome, além do catálogo, o endpoint de auditoria `GET /dashboard/events` (feature `operational-log`) — só leitura, sem qualquer outra dependência do domínio de monitoramento.
 
 ---
 
@@ -32,7 +32,7 @@ Frontend em React/TypeScript/Vite do Portal de Serviços: consulta, pesquisa, fi
 
 ## Visão geral
 
-Este projeto é exclusivamente o **Portal de Serviços** (`/`, `/apis`, `/web-services`, `/sites`, `/favoritos`, `/cadastro-recursos/*`, `/sobre`) — voltado ao usuário final: consultar, pesquisar, favoritar e (para quem administra o catálogo) cadastrar/editar/excluir recursos. Não há nenhuma tela de monitoramento neste repositório — o Painel Operacional é um projeto à parte (`dashboard/`), que consome a mesma API de forma totalmente independente.
+Este projeto é exclusivamente o **Portal de Serviços** (`/`, `/apis`, `/web-services`, `/sites`, `/favoritos`, `/cadastro-recursos/*`, `/log-operacional`, `/sobre`) — voltado ao usuário final: consultar, pesquisar, favoritar e (para quem administra o catálogo) cadastrar/editar/excluir recursos. Não há tela de monitoramento em tempo real (gauge, KPIs, TV) neste repositório — isso é o Painel Operacional, um projeto à parte (`dashboard/`), que consome a mesma API de forma totalmente independente. O Web tem, no entanto, uma tela de **auditoria** (`Log Operacional`) que lê os eventos de transição de status já persistidos pela `api/` — o **Log Operacional** propriamente dito (`events.json`, distinto do **Histórico Operacional**/`history.json`, que é só métricas e série temporal, consumido pelo `dashboard/`) — sem duplicar nenhuma lógica de monitoramento.
 
 **Responsabilidade do Portal:**
 
@@ -81,6 +81,7 @@ flowchart TB
         Catalog["catalog"]
         Admin["admin"]
         Details["resource-details"]
+        Log["operational-log"]
         About["about"]
     end
 
@@ -94,9 +95,9 @@ flowchart TB
 
     Providers --> Router
     Router --> Shell
-    Shell --> Catalog & Admin & Details & About
-    Catalog & Admin & Details --> UI
-    Catalog & Admin & Details --> Services
+    Shell --> Catalog & Admin & Details & Log & About
+    Catalog & Admin & Details & Log --> UI
+    Catalog & Admin & Details & Log --> Services
     Services --> Lib --> API
 ```
 
@@ -136,6 +137,7 @@ web/
 │   │   ├── about/
 │   │   ├── admin/                # Cadastro de Recursos (CRUD)
 │   │   ├── catalog/               # Portal — busca, filtros, favoritos
+│   │   ├── operational-log/       # Log Operacional — auditoria (GET /dashboard/events)
 │   │   └── resource-details/
 │   ├── layout/
 │   │   ├── AppShell.tsx  Header.tsx  Sidebar.tsx  Footer.tsx  Logo.tsx  PageContainer.tsx
@@ -152,7 +154,7 @@ web/
 │   │   └── index.ts
 │   ├── services/
 │   │   ├── resource.service.ts  adminResource.service.ts  summary.service.ts
-│   │   └── health.service.ts
+│   │   └── health.service.ts  operationalLog.service.ts
 │   ├── main.tsx
 │   └── vite-env.d.ts
 ├── vite.config.ts
@@ -178,6 +180,7 @@ Definidas centralmente em `routes/paths.ts` e registradas em `app/router.tsx`. *
 | `/cadastro-recursos/novo` | Sim | `ResourceFormPage` (`mode="create"`) | Criar recurso |
 | `/cadastro-recursos/:resourceId` | Sim | `ResourceViewPage` | Visualizar recurso (admin) |
 | `/cadastro-recursos/:resourceId/editar` | Sim | `ResourceFormPage` (`mode="edit"`) | Editar recurso |
+| `/log-operacional` | Sim | `OperationalLogPage` | Auditoria — histórico de transições de status |
 
 **Compatibilidade com URLs antigas** — redirecionam automaticamente (`<Navigate replace>`), sem renderizar tela própria:
 
@@ -206,6 +209,14 @@ Cada feature em `src/features/<nome>/` segue o mesmo formato: `components/`, `ho
 - `ResourceViewPage` — leitura, com atalho para edição.
 - `DeleteResourceModal` — confirmação antes de excluir.
 - Mutações (`useCreateResource`, `useUpdateResource`, `useDeleteResource`) usam `useMutation` do TanStack Query e invalidam as queries `['resources']`/`['summary']` no sucesso, mantendo o Portal sincronizado sem recarregar a página.
+
+### `operational-log/` — Log Operacional (auditoria)
+
+- `OperationalLogPage` — tabela (componente `Table` do Design System, mesmo padrão de `AdminResourcesPage`) com todas as transições de status já registradas pela `api/`: data/hora, recurso, tipo, status anterior → novo status, motivo (com mensagem de erro real e duração da indisponibilidade quando existirem, exibidas como linhas secundárias), tempo de resposta e código HTTP.
+- **Filtros**: recurso, ambiente, status e período (`De`/`Até`) via `useOperationalLogFilters` — vão para o servidor como query string de `GET /dashboard/events` (`resourceId`/`status`/`environment`/`since`/`until`), reduzindo o payload conforme `events.json` cresce. Pesquisa por texto (recurso/motivo) continua client-side, aplicada sobre o resultado já filtrado pelo servidor — não existe `search=` na API.
+- `useOperationalLog(filters)` — cada combinação de filtros estruturados é uma entrada própria de cache do TanStack Query (`queryKey: ['dashboard','events', filters]`); sem polling (é uma tela de auditoria, não um painel ao vivo). Paginação client-side com o mesmo `Pagination` do Design System, sobre o resultado já filtrado (servidor + busca).
+- **Exportação** (`export/`) — botão "Exportar" gera um CSV (`operationalLogCsv.ts`, com BOM UTF-8 para abrir corretamente no Excel) só dos registros filtrados na tela, via `downloadFile.ts` (mecânica de download genérica, reutilizável). `exportOperationalLog(events, format)` já é despachado por um registro de exportadores (`OPERATIONAL_LOG_EXPORTERS`) — adicionar Excel/PDF no futuro é só registrar um novo serializer, sem tocar na tela.
+- Não introduz persistência nem endpoint novo — é o único ponto do Web que lê algo do domínio `/dashboard*`, e o faz só em modo leitura.
 
 ### `resource-details/`
 

@@ -45,6 +45,10 @@ export const paths = {
       getHref: (resourceId: string) => `/cadastro-recursos/${resourceId}`,
     },
   },
+  operationalLog: {
+    path: '/log-operacional',
+    getHref: () => '/log-operacional',
+  },
 } as const
 
 export const legacyPaths = {

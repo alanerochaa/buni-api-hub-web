@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router'
 import { StarIcon } from '@/components/ui'
 import { AdminIcon } from '@/features/admin'
 import { ApiIcon, SiteIcon, WebServiceIcon } from '@/features/catalog'
+import { LogIcon } from '@/features/operational-log'
 import { paths } from '@/routes'
 
 const FOCUS_RING_CLASSES =
@@ -86,6 +87,7 @@ const INFO_ITEMS: RouteNavItem[] = [
 
 const ADMIN_ITEMS: RouteNavItem[] = [
   { href: paths.admin.resources.getHref(), label: 'Cadastro de Recursos', icon: <AdminIcon /> },
+  { href: paths.operationalLog.getHref(), label: 'Log Operacional', icon: <LogIcon /> },
 ]
 
 // Breakpoint md do Tailwind (768px): abaixo disso é considerado mobile

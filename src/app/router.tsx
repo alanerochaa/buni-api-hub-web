@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { AboutPage } from '@/features/about'
 import { AdminResourcesPage, ResourceFormPage, ResourceViewPage } from '@/features/admin'
 import { CatalogPage } from '@/features/catalog'
+import { OperationalLogPage } from '@/features/operational-log'
 import { ResourceDetailsPage } from '@/features/resource-details'
 import { AppShell } from '@/layout'
 import { legacyPaths, paths } from '@/routes'
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: paths.admin.newResource.path, element: <ResourceFormPage mode="create" /> },
       { path: paths.admin.editResource.path, element: <ResourceFormPage mode="edit" /> },
       { path: paths.admin.viewResource.path, element: <ResourceViewPage /> },
+      { path: paths.operationalLog.path, element: <OperationalLogPage /> },
     ],
   },
   // Compatibilidade com URLs antigas (/admin/recursos/...), de antes
