@@ -8,15 +8,10 @@ import { Sidebar } from './Sidebar'
 export function AppShell() {
   const navigate = useNavigate()
   const location = useLocation()
-
-  // A entrada de histórico do carregamento inicial não tem a `key` que
-  // <ScrollRestoration> usa para restaurar scroll ao voltar. Substituir
-  // por uma entrada gerada pelo router (replace) corrige isso.
   useEffect(() => {
     if (!window.history.state?.key) {
       navigate(location.pathname + location.search, { replace: true })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -29,8 +24,6 @@ export function AppShell() {
         </main>
       </div>
       <Footer />
-      {/* Topo em navegações novas, posição restaurada em voltar/avançar — nativo do react-router. */}
-      <ScrollRestoration />
     </div>
   )
 }

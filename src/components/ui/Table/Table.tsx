@@ -4,7 +4,6 @@ export interface TableColumn<T> {
   key: string
   header: string
   sortable?: boolean
-  /** Largura da coluna (ex.: '6rem', '96px'). Colunas sem width dividem o espaço restante. */
   width?: string
   align?: 'left' | 'center' | 'right'
   render: (row: T) => ReactNode
@@ -41,11 +40,6 @@ function SortIcon({ direction }: { direction?: 'asc' | 'desc' }) {
   )
 }
 
-/**
- * Tabela genérica reutilizável para telas administrativas (a do
- * catálogo continua própria). Não define rolagem/borda — quem consome
- * envolve num container com overflow, necessário para o header sticky.
- */
 export function Table<T>({
   columns,
   rows,

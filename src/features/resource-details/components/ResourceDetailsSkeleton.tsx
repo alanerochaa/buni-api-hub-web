@@ -1,6 +1,5 @@
 import { Card, Skeleton } from '@/components/ui'
 
-/** Mesma forma da ResourceDetailsPage real — mesmos cards, mesmo ritmo vertical. */
 export function ResourceDetailsSkeleton() {
   return (
     <div>
@@ -52,6 +51,12 @@ export function ResourceDetailsSkeleton() {
           <Skeleton className="h-5 w-20 rounded-full" />
         </div>
       </Card>
+
+      <Skeleton className="mt-4 h-3 w-20 sm:mt-6" />
+      <div className="mt-2 flex flex-col gap-3">
+        <Card className="h-28" />
+        <Card className="h-28" />
+      </div>
     </div>
   )
 }

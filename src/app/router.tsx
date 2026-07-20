@@ -28,9 +28,6 @@ export const router = createBrowserRouter([
       { path: paths.operationalLog.path, element: <OperationalLogPage /> },
     ],
   },
-  // Compatibilidade com URLs antigas (/admin/recursos/...), de antes
-  // da migração para /cadastro-recursos — só redirecionam, não
-  // renderizam nenhuma tela própria.
   {
     path: legacyPaths.adminResources,
     element: <Navigate to={paths.admin.resources.getHref()} replace />,

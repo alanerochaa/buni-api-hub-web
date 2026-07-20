@@ -10,11 +10,6 @@ export interface FilterBarProps {
   onStatusChange: (value: ResourceStatus | 'all') => void
 }
 
-/**
- * Sem filtro de Tipo aqui de propósito: qual tipo de recurso aparece
- * é decidido pela rota (/apis, /web-services, /sites — ver
- * CatalogPage), não por um filtro dentro da própria tela.
- */
 export function FilterBar({
   environment,
   onEnvironmentChange,

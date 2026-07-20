@@ -16,7 +16,6 @@ export interface SelectProps
   label: string
   options: SelectOption[]
   size?: keyof typeof SIZE_CLASSES
-  /** Esconde visualmente o label (mantém acessível via sr-only) — usado em barras de filtro compactas. */
   hideLabel?: boolean
 }
 

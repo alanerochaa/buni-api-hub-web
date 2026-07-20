@@ -9,7 +9,6 @@ export interface OperationalLogFiltersState {
   resourceId: string | 'all'
   status: OperationalLogStatus | 'all'
   environment: ResourceEnvironment | 'all'
-  /** yyyy-mm-dd (valor cru de <input type="date">), ou '' quando não definido. */
   since: string
   until: string
   search: string
@@ -23,9 +22,7 @@ export interface UseOperationalLogFiltersResult {
   setSince: (value: string) => void
   setUntil: (value: string) => void
   setSearch: (value: string) => void
-  /** Só os critérios resolvidos no servidor — vai direto para useOperationalLog/GET /dashboard/events. */
   serverFilters: OperationalLogFilters
-  /** Aplica a pesquisa por texto (client-side) sobre o resultado já filtrado pelo servidor. */
   applySearch: (events: OperationalEvent[]) => OperationalEvent[]
 }
 
@@ -46,13 +43,6 @@ function endOfDayIso(date: string): string {
   return new Date(`${date}T23:59:59.999`).toISOString()
 }
 
-/**
- * Só os filtros estruturados (recurso/status/ambiente/período) viram
- * query params do endpoint — reduz o payload trafegado, especialmente
- * conforme `events.json` (Log Operacional) cresce. A pesquisa por texto
- * permanece no cliente porque não existe (nem foi pedido) suporte a
- * `search=` na API.
- */
 export function useOperationalLogFilters(): UseOperationalLogFiltersResult {
   const [filters, setFilters] = useState<OperationalLogFiltersState>(INITIAL_FILTERS)
 

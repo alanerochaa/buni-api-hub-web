@@ -1,4 +1,3 @@
-/** "3min 12s", "1h 05min", "45s" — sem casas decimais, granularidade de segundo. */
 export function formatDuration(ms: number): string {
   const totalSeconds = Math.max(0, Math.round(ms / 1000))
   const hours = Math.floor(totalSeconds / 3600)

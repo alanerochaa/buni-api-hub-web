@@ -2,15 +2,20 @@ import { StarIcon } from '@/components/ui'
 
 import { RESOURCE_TYPE_LABELS } from '../constants'
 import { ApiIcon, SiteIcon, WebServiceIcon } from '../icons'
-import type { ResourceSummary } from '../types'
 import { ResourceSummaryCard } from './ResourceSummaryCard'
 
-export interface ResourceSummaryGridProps {
-  summary: ResourceSummary
-  favoritesCount: number
+export interface ResourceSummaryCounts {
+  apis: number
+  webServices: number
+  sites: number
+  favorites: number
 }
 
-export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummaryGridProps) {
+export interface ResourceSummaryGridProps {
+  counts: ResourceSummaryCounts
+}
+
+export function ResourceSummaryGrid({ counts }: ResourceSummaryGridProps) {
   const items = [
     {
       key: 'api',
@@ -18,7 +23,7 @@ export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummary
       description: 'APIs Catalogadas.',
       icon: <ApiIcon />,
       iconClassName: 'bg-blue-600 text-white',
-      count: summary.apis,
+      count: counts.apis,
     },
     {
       key: 'web-service',
@@ -26,7 +31,7 @@ export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummary
       description: 'Web Services Catalogados.',
       icon: <WebServiceIcon />,
       iconClassName: 'bg-emerald-600 text-white',
-      count: summary.webServices,
+      count: counts.webServices,
     },
     {
       key: 'site',
@@ -34,7 +39,7 @@ export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummary
       description: 'Sites Catalogados.',
       icon: <SiteIcon />,
       iconClassName: 'bg-purple-600 text-white',
-      count: summary.sites,
+      count: counts.sites,
     },
     {
       key: 'favorites',
@@ -42,7 +47,7 @@ export function ResourceSummaryGrid({ summary, favoritesCount }: ResourceSummary
       description: 'Total de recursos favoritados.',
       icon: <StarIcon filled className="size-6" />,
       iconClassName: 'bg-amber-500 text-white',
-      count: favoritesCount,
+      count: counts.favorites,
     },
   ] as const
 

@@ -7,11 +7,6 @@ import { ToastContext } from './ToastContext'
 
 const TOAST_DURATION_MS = 3000
 
-/**
- * Toast único e global, montado acima do <RouterProvider/> — sobrevive
- * a navegações, então uma mensagem disparada antes de um redirect
- * continua visível na tela seguinte, em vez de desmontar com a página.
- */
 export function ToastProvider({ children }: PropsWithChildren) {
   const [toast, setToast] = useState<{ message: string; variant: ToastVariant } | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)

@@ -70,10 +70,6 @@ interface RouteNavItem {
   label: string
   icon: ReactNode
 }
-
-// Início/APIs/Web Services/Sites são rotas reais e mutuamente
-// exclusivas — cada uma decide sua própria "view" do catálogo (ver
-// features/catalog/components/CatalogPage.tsx), sem query params.
 const CATALOG_ITEMS: RouteNavItem[] = [
   { href: paths.catalog.getHref(), label: 'Início', icon: <HomeIcon /> },
   { href: paths.apis.getHref(), label: 'APIs', icon: <ApiIcon className="size-5" /> },
@@ -90,9 +86,6 @@ const ADMIN_ITEMS: RouteNavItem[] = [
   { href: paths.operationalLog.getHref(), label: 'Log Operacional', icon: <LogIcon /> },
 ]
 
-// Breakpoint md do Tailwind (768px): abaixo disso é considerado mobile
-// e a sidebar inicia recolhida; tablet (>=768px) e desktop iniciam
-// expandidos.
 function getInitialExpandedState(): boolean {
   if (typeof window === 'undefined') return true
   return window.innerWidth >= 768
@@ -107,12 +100,6 @@ function itemClasses(isActive: boolean, isExpanded: boolean): string {
   return `${base} ${alignment} ${tone}`
 }
 
-/**
- * A Sidebar é layout/ (aparece em toda rota). Todos os itens são
- * navegação real via <Link> — nenhum deles pilota filtro por query
- * param; importa ícones do barrel público de catalog só por
- * conveniência visual, sem reinventá-los aqui.
- */
 export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(getInitialExpandedState)
   const location = useLocation()

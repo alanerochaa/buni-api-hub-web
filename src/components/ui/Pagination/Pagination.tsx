@@ -9,12 +9,6 @@ const FOCUS_RING_CLASSES =
 
 const NAV_BUTTON_CLASSES = `rounded-md px-2 py-1 text-sm text-neutral-600 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent ${FOCUS_RING_CLASSES}`
 
-/**
- * Janela de números de página com reticências (1 2 3 ... 6), sempre
- * mostrando a primeira, a última e uma vizinhança da página atual —
- * no máximo 5 números visíveis por vez, para não renderizar dezenas
- * de botões em catálogos grandes.
- */
 function getPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
   if (total <= 7) return Array.from({ length: total }, (_, index) => index + 1)
 
@@ -31,14 +25,6 @@ function getPageNumbers(current: number, total: number): (number | 'ellipsis')[]
   return result
 }
 
-/**
- * Paginação minimalista — só navegação (Anterior / números / Próxima),
- * sem contador de registros nem seletor de itens por página (tamanho
- * fixo, ver DEFAULT_PAGE_SIZE). Uma única linha centralizada, baixa
- * altura, no espírito de GitHub/Notion — o rodapé não deve competir
- * por atenção com os dados da tabela. Reutilizada por todas as telas
- * com tabela (Catálogo, Cadastro de Recursos).
- */
 export function Pagination({ page, pageCount, onPageChange }: PaginationProps) {
   if (pageCount <= 1) return null
 

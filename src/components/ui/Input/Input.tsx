@@ -24,9 +24,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   label: string
   error?: string
   size?: keyof typeof SIZE_CLASSES
-  /** Esconde visualmente o label (mantém acessível via sr-only) — usado em barras de filtro compactas. */
   hideLabel?: boolean
-  /** Ícone posicionado à esquerda do campo (ex.: lupa em campos de busca). */
   icon?: ReactNode
 }
 

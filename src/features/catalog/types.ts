@@ -21,8 +21,6 @@ export interface Resource {
 
   searchIndex: string[]
 
-  // Módulo administrativo (cadastro manual pela interface): metadados
-  // opcionais, ausentes nos registros importados em lote pela Ingestion.
   docUrl?: string
   responsible?: string
   area?: string
@@ -39,11 +37,4 @@ export interface ResourceHealth {
   httpStatus?: number
   responseTime?: number
   lastCheckedAt: string
-}
-
-export interface ResourceSummary {
-  total: number
-  apis: number
-  webServices: number
-  sites: number
 }

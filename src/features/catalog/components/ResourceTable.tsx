@@ -1,6 +1,6 @@
 import { Button, EmptyState } from '@/components/ui'
 
-import type { Resource, ResourceHealth } from '../types'
+import type { Resource, ResourceEnvironment, ResourceHealth } from '../types'
 import { ResourceTableHeader } from './ResourceTableHeader'
 import { ResourceTableRow } from './ResourceTableRow'
 
@@ -26,6 +26,7 @@ function NoResultsIcon() {
 export interface ResourceTableProps {
   resources: Resource[]
   healthByResourceId: Map<string, ResourceHealth>
+  environmentFilter: ResourceEnvironment | 'all'
   onClearFilters?: () => void
   onCopyUrl: (resource: Resource) => void
 }
@@ -33,6 +34,7 @@ export interface ResourceTableProps {
 export function ResourceTable({
   resources,
   healthByResourceId,
+  environmentFilter,
   onClearFilters,
   onCopyUrl,
 }: ResourceTableProps) {
@@ -56,6 +58,7 @@ export function ResourceTable({
               key={resource.id}
               resource={resource}
               health={healthByResourceId.get(resource.id)}
+              environmentFilter={environmentFilter}
               onCopyUrl={onCopyUrl}
             />
           ))}

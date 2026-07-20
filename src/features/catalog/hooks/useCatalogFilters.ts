@@ -21,13 +21,6 @@ function parseStatus(raw: string | null): ResourceStatus | 'all' {
     : 'all'
 }
 
-/**
- * Só pesquisa/ambiente/status — o que continua sendo "filtro
- * temporário" via query string. Tipo e favoritos deixaram de existir
- * aqui: qual "view" está aberta (APIs, Web Services, Sites,
- * Favoritos, Início) é decidido pela rota (ver app/router.tsx e
- * CatalogPage), nunca por ?type=/?favorites=.
- */
 export interface CatalogFilters {
   search: string
   environment: ResourceEnvironment | 'all'

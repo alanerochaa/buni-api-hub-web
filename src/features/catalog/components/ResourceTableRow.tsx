@@ -6,7 +6,8 @@ import { paths } from '@/routes'
 import { RESOURCE_ENVIRONMENT_LABELS, RESOURCE_TYPE_LABELS } from '../constants'
 import { formatRelativeTime } from '../formatRelativeTime'
 import { getResourceDisplayName } from '../getResourceDisplayName'
-import type { Resource, ResourceHealth } from '../types'
+import { getResourceIdentityKey } from '../getResourceIdentityKey'
+import type { Resource, ResourceEnvironment, ResourceHealth } from '../types'
 import { FavoriteButton } from './FavoriteButton'
 import { ResourceStatusBadge } from './ResourceStatusBadge'
 
@@ -53,21 +54,20 @@ const ACTION_BUTTON_CLASSES =
 export interface ResourceTableRowProps {
   resource: Resource
   health: ResourceHealth | undefined
+  environmentFilter: ResourceEnvironment | 'all'
   onCopyUrl: (resource: Resource) => void
 }
 
-/**
- * `health` vem de um único GET /health/resources feito uma vez para a
- * tabela inteira (useResourcesHealth) — não por linha. Ausência de
- * health (falha na chamada, ou recurso ainda não passou pela primeira
- * varredura) cai no fallback "Desconhecido" do ResourceStatusBadge, sem
- * quebrar a linha.
- */
-export function ResourceTableRow({ resource, health, onCopyUrl }: ResourceTableRowProps) {
+export function ResourceTableRow({
+  resource,
+  health,
+  environmentFilter,
+  onCopyUrl,
+}: ResourceTableRowProps) {
   return (
     <tr className="border-b border-neutral-100 transition-colors last:border-0 hover:bg-neutral-50">
       <td className="px-3 py-2.5 whitespace-nowrap">
-        <FavoriteButton resourceId={resource.id} />
+        <FavoriteButton resourceId={getResourceIdentityKey(resource)} />
       </td>
       <td
         className="truncate px-3 py-2.5 font-medium text-neutral-900"
@@ -94,7 +94,11 @@ export function ResourceTableRow({ resource, health, onCopyUrl }: ResourceTableR
         <Badge>{RESOURCE_TYPE_LABELS[resource.type]}</Badge>
       </td>
       <td className="px-3 py-2.5 whitespace-nowrap">
-        <Badge>{RESOURCE_ENVIRONMENT_LABELS[resource.environment]}</Badge>
+        {environmentFilter === 'all' ? (
+          <span className="text-neutral-500">—</span>
+        ) : (
+          <Badge>{RESOURCE_ENVIRONMENT_LABELS[resource.environment]}</Badge>
+        )}
       </td>
       <td className="px-3 py-2.5 whitespace-nowrap">
         <ResourceStatusBadge status={health?.status ?? 'unknown'} />

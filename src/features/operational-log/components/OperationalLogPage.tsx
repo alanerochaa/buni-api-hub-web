@@ -46,17 +46,6 @@ function formatDateTime(value: string): string {
   return new Date(value).toLocaleString('pt-BR')
 }
 
-/**
- * Log Operacional — eventos detalhados e auditoria (ao lado do
- * Histórico Operacional, que cobre métricas/série temporal em
- * `dashboard/`). Lê exclusivamente `GET /dashboard/events` (via
- * `useOperationalLog`), sem persistência própria. Filtros estruturados
- * (recurso/status/ambiente/período) vão para o servidor via query
- * params; a pesquisa por texto é aplicada sobre o resultado já filtrado
- * (ver useOperationalLogFilters). Exportação (CSV hoje, Excel/PDF no
- * futuro) atua só sobre os registros filtrados, nunca sobre a base
- * inteira.
- */
 export function OperationalLogPage() {
   const { resources } = useResources()
   const {

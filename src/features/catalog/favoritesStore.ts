@@ -39,3 +39,12 @@ export function toggleFavorite(resourceId: string): void {
   persist()
   for (const listener of listeners) listener()
 }
+
+export function pruneFavorites(validIds: Set<string>): void {
+  const next = new Set([...favoriteIds].filter((id) => validIds.has(id)))
+  if (next.size === favoriteIds.size) return
+
+  favoriteIds = next
+  persist()
+  for (const listener of listeners) listener()
+}
