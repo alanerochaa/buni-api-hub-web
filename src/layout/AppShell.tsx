@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router'
+import { Outlet, useLocation, useNavigate } from 'react-router'
 
 import { Footer } from './Footer'
 import { Header } from './Header'
@@ -8,6 +8,7 @@ import { Sidebar } from './Sidebar'
 export function AppShell() {
   const navigate = useNavigate()
   const location = useLocation()
+
   useEffect(() => {
     if (!window.history.state?.key) {
       navigate(location.pathname + location.search, { replace: true })
