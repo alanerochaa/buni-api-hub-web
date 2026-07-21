@@ -6,7 +6,14 @@ export function Footer() {
       <PageContainer className="flex items-center justify-center py-4 text-xs text-neutral-500">
         <span>
           Desenvolvido por{' '}
-          <span className="font-medium text-neutral-700">Catarse Tecnologia & Consultoria</span>
+          <a
+            href="https://catarse.co/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-neutral-700 cursor-pointer hover:underline"
+          >
+            Catarse Tecnologia & Consultoria
+          </a>
         </span>
       </PageContainer>
     </footer>
