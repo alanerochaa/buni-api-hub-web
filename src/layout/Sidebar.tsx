@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Link, useLocation } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 
 import { StarIcon } from '@/components/ui'
 import { AdminIcon } from '@/features/admin'
+import { useAuth } from '@/features/auth'
 import { ApiIcon, SiteIcon, WebServiceIcon } from '@/features/catalog'
 import { LogIcon } from '@/features/operational-log'
 import { paths } from '@/routes'
@@ -65,6 +66,34 @@ function InfoIcon() {
   )
 }
 
+function LogoutIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="size-5"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  )
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
+}
+
 interface RouteNavItem {
   href: string
   label: string
@@ -103,6 +132,14 @@ function itemClasses(isActive: boolean, isExpanded: boolean): string {
 export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(getInitialExpandedState)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
+  const isAdmin = user?.role === 'ROLE_ADMIN'
+
+  function handleLogout() {
+    logout()
+    navigate(paths.login.getHref(), { replace: true })
+  }
 
   function renderLabel(label: string) {
     return (
@@ -176,14 +213,53 @@ export function Sidebar() {
         </button>
       </div>
 
-      <nav className="flex flex-col gap-0.5 px-2">
+      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2">
         {CATALOG_ITEMS.map(renderRouteItem)}
         <div className="my-1.5 border-t border-neutral-200" />
-        {ADMIN_ITEMS.map(renderRouteItem)}
+        {isAdmin && ADMIN_ITEMS.map(renderRouteItem)}
         {renderFavoritesItem()}
         <div className="my-1.5 border-t border-neutral-200" />
         {INFO_ITEMS.map(renderRouteItem)}
       </nav>
+
+      {user && (
+        <div className="shrink-0 border-t border-neutral-200 p-2">
+          <div
+            className={`flex items-center gap-2.5 py-1.5 ${isExpanded ? 'px-2' : 'justify-center px-0'}`}
+          >
+            <span className="bg-brand-100 text-brand-800 flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+              {getInitials(user.nome)}
+            </span>
+            <span
+              className={`min-w-0 overflow-hidden transition-all duration-200 ${
+                isExpanded ? 'max-w-40 opacity-100' : 'max-w-0 opacity-0'
+              }`}
+            >
+              <span className="block truncate text-sm font-medium text-neutral-900">
+                {user.nome}
+              </span>
+              <span className="block truncate text-xs text-neutral-500">
+                {user.role === 'ROLE_ADMIN' ? 'Administrador' : 'Usuário'}
+              </span>
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Sair"
+            aria-label="Sair"
+            className={`mt-2 flex w-full items-center gap-2.5 rounded-xl bg-red-50 py-2.5 text-sm font-medium text-red-800 transition-colors duration-200 hover:bg-red-100 ${
+              isExpanded ? 'px-3' : 'justify-center px-0'
+            } ${FOCUS_RING_CLASSES}`}
+          >
+            <span className="shrink-0">
+              <LogoutIcon />
+            </span>
+            {renderLabel('Sair')}
+          </button>
+        </div>
+      )}
     </aside>
   )
 }

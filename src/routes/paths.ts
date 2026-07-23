@@ -1,4 +1,12 @@
 export const paths = {
+  login: {
+    path: '/login',
+    getHref: () => '/login',
+  },
+  accessDenied: {
+    path: '/acesso-negado',
+    getHref: () => '/acesso-negado',
+  },
   catalog: {
     path: '/',
     getHref: () => '/',
